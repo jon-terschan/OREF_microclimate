@@ -1,16 +1,18 @@
 ########################
 #####DEPENDENCIES#######
 ########################
-library(lidR) #to handle Lidar datza
+library(lidR) #to handle Lidar data
 library(microbenchmark) # for benchmarking
-library(RCSF) # for CSF algorithm
-library(RMCC) # needed for MCC algorithm
+library(RCSF) # for CSF based ground classif
+library(RMCC) # needed for MCC based ground classif
 library(ggplot2) # for plotting
+library(gstat)  # for invert distance weighting DTM generation
+
 ########################
 #######IMPORT###########
 ########################
 #LASfile <- system.file("extdata", "Topography.laz", package="lidR")
-address <- "D:/OREF_tls_microclimate_project/point_cloud_data/las_files/las_local_coord/OREF_6_local.las"
+address <- "D:/OREF_tls_microclimate_project/point_cloud_data/las_files/las_local_coord/OREF_106_local.las"
 
 # select parameters to load from the las file
 # xyz = xyz coordinates
@@ -18,9 +20,10 @@ address <- "D:/OREF_tls_microclimate_project/point_cloud_data/las_files/las_loca
 # n = number of returns
 # i = intensity 
 # more parameters; https://search.r-project.org/CRAN/refmans/lidR/html/readLAS.html
-las <- readLAS(address, select = "xyzrni")
+# filter to reduce file size can also filter by height 
+las <- readLAS(address, select = "xyzrn", filter = "-keep_first")
 
-#BENCHMARK; import time doesnt increase if you import more parameters, only 
+#BENCHMARK; import time doesnt increase if you chose to import more parameters, only 
 #object size. import time triples if you import laz and not las because it
 #unwraps the files 
 #lazaddress <- "D:/OREF_tls_microclimate_project/point_cloud_data/testcloud.laz"
@@ -51,6 +54,7 @@ plot(las, color = "Z", bg = "grey", axis = TRUE, legend = TRUE)
 #is assumed to be ground points. Accruacy depends on window size.
 #Runtime; >1h
 #Drawbacks; accuracy depends on window size and threshold, tuning required
+?pmf
 las <- classify_ground(las, algorithm = pmf(ws = 5, th = 3))
 # ws = window size
 # th = threshold size
@@ -76,6 +80,7 @@ las <- classify_ground(las, mycsf)
 #ting surface area - pretty unintuitively
 #Runtime; 
 #Drawbacks; 
+?mcc
 las <- classify_ground(las, mcc(1.5,0.3))
 
 ############################
@@ -85,8 +90,8 @@ las <- classify_ground(las, mcc(1.5,0.3))
 # PLOT A TRANSCRIPT USING GGPLOT
 # took me forever to figure out but these are coordinates for two points within
 # the point cloud from which a rectangular AOI is formed
-p1 <- c(-50, 40)
-p2 <- c(50, 40)
+p1 <- c( -50, 40 )
+p2 <- c( 50, 40 )
 #width is in y direction i think
 las_tr <- clip_transect(las, p1, p2, width = 4, xz = TRUE)
 
@@ -112,7 +117,42 @@ plot_crossection <- function(las,
   return(p)
 }
 # select area of inerest
-p1 <- c(-50, 40)
-p2 <- c(50, 40)
+
+p1 <- c( -50, 40 )
+p2 <- c( 50, 40 )
 # create transcript showing classification
 plot_crossection(las, p1 = p1, p2 = p2, colour_by = factor(Classification))
+
+
+############################
+######2. DTM Creation#######
+############################
+
+#TIN - Triangular Irregular Network
+dtm_tin <- rasterize_terrain(las, res = 1, algorithm = tin())
+plot_dtm3d(dtm_tin, bg = "white") 
+
+#IDW - Invert distance weighting
+dtm_idw <- rasterize_terrain(las, algorithm = knnidw(k = 10L, p = 2))
+plot_dtm3d(dtm_idw, bg = "white") 
+
+#Kriging
+#i think this requires multi-threading and a filtered point cloud to be feasible
+dtm_kriging <- rasterize_terrain(las, algorithm = kriging(k = 40))
+plot_dtm3d(dtm_kriging, bg = "white") 
+
+
+#Benchmark algorithms;
+#make or break is kriging, it just takes forever
+mbm <- microbenchmark("TIN" = {dtm_tin <- rasterize_terrain(las, res = 1, algorithm = tin())},
+                      "IDW" = {dtm_idw <- rasterize_terrain(las, algorithm = knnidw(k = 10L, p = 2))},
+                      "Kriging" = {dtm_krig <- rasterize_terrain(las, algorithm = kriging(k = 40))},
+                      times = 1
+                      )
+#mbm
+
+
+#testing las catalogs i send an email to eduardo maybe he can help 
+opt_chunk_size(ctg) <- 10
+ctg <- readLAScatalog("D:/OREF_tls_microclimate_project/point_cloud_data/las_files/las_local_coord/las_6")
+plot(ctg, chunk = TRUE)
