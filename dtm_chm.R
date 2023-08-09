@@ -11,8 +11,10 @@ library(gstat)  # for invert distance weighting DTM generation
 ########################
 #######IMPORT###########
 ########################
-#LASfile <- system.file("extdata", "Topography.laz", package="lidR")
-address <- "D:/OREF_tls_microclimate_project/point_cloud_data/las_files/las_local_coord/OREF_106_local.las"
+# the basic way to import individual scans 
+address1249 <- "D:/OREF_tls_microclimate_project/point_cloud_data/las_files/las_local_coord/OREF_1249_local.las"
+address1250 <- "D:/OREF_tls_microclimate_project/point_cloud_data/las_files/las_local_coord/OREF_1250_local.las"
+address1254 <- "D:/OREF_tls_microclimate_project/point_cloud_data/las_files/las_local_coord/OREF_1254_local.las"
 
 # select parameters to load from the las file
 # xyz = xyz coordinates
@@ -21,8 +23,9 @@ address <- "D:/OREF_tls_microclimate_project/point_cloud_data/las_files/las_loca
 # i = intensity 
 # more parameters; https://search.r-project.org/CRAN/refmans/lidR/html/readLAS.html
 # filter to reduce file size can also filter by height 
-las <- readLAS(address, select = "xyzrn", filter = "-keep_first")
-
+las1249 <- readLAS(address1249, select = "xyzrn") # filter = "-keep_first"
+las1250 <- readLAS(address1249, select = "xyzrn")
+las1254 <- readLAS(address1249, select = "xyzrn")
 #BENCHMARK; import time doesnt increase if you chose to import more parameters, only 
 #object size. import time triples if you import laz and not las because it
 #unwraps the files 
@@ -34,6 +37,39 @@ las <- readLAS(address, select = "xyzrn", filter = "-keep_first")
 #)
 #mbm
 
+# list of filepaths 
+filepath_list = list.files("D:/OREF_tls_microclimate_project/point_cloud_data/las_files/las_local_coord/", 
+                  pattern = ".las", full.names = T)
+# list of filenames 
+filename_list <- list.files("D:/OREF_tls_microclimate_project/point_cloud_data/las_files/las_local_coord/", 
+                    pattern = ".las", full.names = F)
+
+#load each file as an individual environment object; probably overkill
+#for (i in 1:length(filepath_list)) assign(filename_list[i], readLAS(filepath_list[i], select = "xyzrn"))
+
+#i havent found a better way to include function arguments into lapply
+customLAS<- function(x) {
+  readLAS(x, select = "xyzrn") #customize to change import parameters
+}
+# strictly speaking makes zero difference if we use
+# lapply or this but this keeps the filepaths as names around which is good for
+# checking whether the next step makes sense
+file_list <- sapply(filepath_list, customLAS, simplify = FALSE, USE.NAMES = T)
+# rename list objects according to the name list and a custom index
+names(file_list) <- paste0(
+  1:length(file_list), # to add an index to use for single scan reference
+  "_", 
+  filename_list)
+# check list object names 
+names(file_list)
+
+# now we can take individual files out of the list or operate on parts of the list
+las_single_file <- file_list[X]
+
+########################
+#######INSPECT##########
+########################
+
 #point cloud summary
 print(las)
 
@@ -43,9 +79,20 @@ las_check(las)
 # plot point cloud
 plot(las, color = "Z", bg = "grey", axis = TRUE, legend = TRUE)
 
+########################
+#########CLIP###########
+########################
+
+#CLIP point clouds to radius
+clip_las1249 <- clip_circle(las1249, 0, 0, 0.5) 
+clip_las1250 <- clip_circle(las1250, 0, 0, 0.5) 
+clip_las1254 <- clip_circle(las1254, 0, 0, 0.5) 
+
 ############################
 ##1. GROUND CLASSIFICATION##
 ############################
+set_lidr_threads(7)
+get_lidr_threads()
 
 #PMF -  Progressive Morphological Filter
 #Source; Zhang et al. 2003 https://ieeexplore.ieee.org/document/1202973
@@ -55,7 +102,7 @@ plot(las, color = "Z", bg = "grey", axis = TRUE, legend = TRUE)
 #Runtime; >1h
 #Drawbacks; accuracy depends on window size and threshold, tuning required
 ?pmf
-las <- classify_ground(las, algorithm = pmf(ws = 5, th = 3))
+las <- classify_ground(clip_las1249, algorithm = pmf(ws = 0.1, th = 0.5))
 # ws = window size
 # th = threshold size
 
@@ -72,8 +119,9 @@ mycsf <- csf(sloop_smooth = F,
              cloth_resolution = 3, 
              rigidness = 2, 
              time_step = 1)
-las <- classify_ground(las, mycsf)
-
+classif_las1249 <- classify_ground(clip_las1249, mycsf)
+classif_las1250 <- classify_ground(clip_las1250, mycsf)
+classif_las1254 <- classify_ground(clip_las1254, mycsf)
 #MCC - MULTISCALE CURVATURE CLASSIFICATION
 #Source; Evans and Hudak 2016 https://ieeexplore.ieee.org/document/4137852
 #Principle; Iterates over points assessing minimum curvature, gradually approxima
@@ -90,10 +138,11 @@ las <- classify_ground(las, mcc(1.5,0.3))
 # PLOT A TRANSCRIPT USING GGPLOT
 # took me forever to figure out but these are coordinates for two points within
 # the point cloud from which a rectangular AOI is formed
-p1 <- c( -50, 40 )
-p2 <- c( 50, 40 )
+p1 <- c( min(las$X), 0 )
+p2 <- c( max(las$X), 0 )
 #width is in y direction i think
-las_tr <- clip_transect(las, p1, p2, width = 4, xz = TRUE)
+?clip_transect
+las_tr <- clip_transect(las, p1, p2, width = 0.5, xz = TRUE)
 
 ggplot(las_tr@data, aes(X,Z, color = Z)) + 
   geom_point(size = 0.5) + 
@@ -105,7 +154,7 @@ ggplot(las_tr@data, aes(X,Z, color = Z)) +
 plot_crossection <- function(las,
                              p1 = c(min(las@data$X), mean(las@data$Y)),
                              p2 = c(max(las@data$X), mean(las@data$Y)),
-                             width = 5, colour_by = NULL) # width can be customized
+                             width = 0.5, colour_by = NULL) # width can be customized
 {
   colour_by <- rlang::enquo(colour_by)
   data_clip <- clip_transect(las, p1, p2, width)
@@ -118,17 +167,18 @@ plot_crossection <- function(las,
 }
 # select area of inerest
 
-p1 <- c( -50, 40 )
-p2 <- c( 50, 40 )
+p1 <- c( min(las$X), 0 )
+p2 <- c( max(las$X), 0 )
 # create transcript showing classification
 plot_crossection(las, p1 = p1, p2 = p2, colour_by = factor(Classification))
-
+dev.off()
 
 ############################
 ######2. DTM Creation#######
 ############################
 
 #TIN - Triangular Irregular Network
+?rasterize_terrain
 dtm_tin <- rasterize_terrain(las, res = 1, algorithm = tin())
 plot_dtm3d(dtm_tin, bg = "white") 
 
@@ -156,3 +206,5 @@ mbm <- microbenchmark("TIN" = {dtm_tin <- rasterize_terrain(las, res = 1, algori
 opt_chunk_size(ctg) <- 10
 ctg <- readLAScatalog("D:/OREF_tls_microclimate_project/point_cloud_data/las_files/las_local_coord/las_6")
 plot(ctg, chunk = TRUE)
+
+??rlas
