@@ -7,7 +7,7 @@ library(RCSF) # for CSF based ground classif
 library(RMCC) # needed for MCC based ground classif
 library(ggplot2) # for plotting
 library(gstat)  # for invert distance weighting DTM generation
-
+library(terra) # for generating a hillshade layer
 ########################
 #######IMPORT###########
 ########################
@@ -15,6 +15,7 @@ library(gstat)  # for invert distance weighting DTM generation
 address1249 <- "D:/OREF_tls_microclimate_project/point_cloud_data/las_files/las_local_coord/OREF_1249_local.las"
 address1250 <- "D:/OREF_tls_microclimate_project/point_cloud_data/las_files/las_local_coord/OREF_1250_local.las"
 address1254 <- "D:/OREF_tls_microclimate_project/point_cloud_data/las_files/las_local_coord/OREF_1254_local.las"
+address1255 <- "D:/OREF_tls_microclimate_project/point_cloud_data/las_files/las_local_coord/OREF_1255_local.las"
 
 # select parameters to load from the las file
 # xyz = xyz coordinates
@@ -24,8 +25,9 @@ address1254 <- "D:/OREF_tls_microclimate_project/point_cloud_data/las_files/las_
 # more parameters; https://search.r-project.org/CRAN/refmans/lidR/html/readLAS.html
 # filter to reduce file size can also filter by height 
 las1249 <- readLAS(address1249, select = "xyzrn") # filter = "-keep_first"
-las1250 <- readLAS(address1249, select = "xyzrn")
-las1254 <- readLAS(address1249, select = "xyzrn")
+las1250 <- readLAS(address1250, select = "xyzrn")
+las1254 <- readLAS(address1254, select = "xyzrn")
+las1255 <- readLAS(address1255, select = "xyzrn")
 #BENCHMARK; import time doesnt increase if you chose to import more parameters, only 
 #object size. import time triples if you import laz and not las because it
 #unwraps the files 
@@ -77,22 +79,22 @@ print(las)
 las_check(las)
 
 # plot point cloud
-plot(las, color = "Z", bg = "grey", axis = TRUE, legend = TRUE)
+plot(clip_las1249, color = "Z", bg = "grey", axis = TRUE, legend = TRUE)
 
 ########################
 #########CLIP###########
 ########################
 
 #CLIP point clouds to radius
-clip_las1249 <- clip_circle(las1249, 0, 0, 0.5) 
-clip_las1250 <- clip_circle(las1250, 0, 0, 0.5) 
-clip_las1254 <- clip_circle(las1254, 0, 0, 0.5) 
-
+clip_las1249 <- clip_circle(las1249, 0, 0, 20) 
+clip_las1250 <- clip_circle(las1250, 0, 0, 20) 
+clip_las1254 <- clip_circle(las1254, 0, 0, 20) 
+clip_las1255 <- clip_circle(las1255, 0, 0, 20) 
 ############################
 ##1. GROUND CLASSIFICATION##
 ############################
-set_lidr_threads(7)
-get_lidr_threads()
+#set_lidr_threads(7)
+#is.parallelised(classify_ground())  
 
 #PMF -  Progressive Morphological Filter
 #Source; Zhang et al. 2003 https://ieeexplore.ieee.org/document/1202973
@@ -101,8 +103,8 @@ get_lidr_threads()
 #is assumed to be ground points. Accruacy depends on window size.
 #Runtime; >1h
 #Drawbacks; accuracy depends on window size and threshold, tuning required
-?pmf
-las <- classify_ground(clip_las1249, algorithm = pmf(ws = 0.1, th = 0.5))
+#?pmf
+#las <- classify_ground(clip_las1249, algorithm = pmf(ws = 0.1, th = 0.5))
 # ws = window size
 # th = threshold size
 
@@ -114,22 +116,40 @@ las <- classify_ground(clip_las1249, algorithm = pmf(ws = 0.1, th = 0.5))
 #Runtime; 10 secs or so, superfast
 #Drawbacks; RCSF dependency
 ?csf
-mycsf <- csf(sloop_smooth = F, 
-             class_threshold = 0.3, 
-             cloth_resolution = 3, 
-             rigidness = 2, 
-             time_step = 1)
-classif_las1249 <- classify_ground(clip_las1249, mycsf)
-classif_las1250 <- classify_ground(clip_las1250, mycsf)
-classif_las1254 <- classify_ground(clip_las1254, mycsf)
+steep_settings <- csf(sloop_smooth = TRUE, 
+             class_threshold = 0.1, 
+             cloth_resolution = 0.3, 
+             rigidness = 1, 
+             time_step = 0.65)
+classif_las1249 <- classify_ground(clip_las1249, steep_settings)
+dtm_tin <- rasterize_terrain(classif_las1249, res = 0.5, algorithm = tin())
+plot_dtm3d(dtm_tin, bg = "white") 
+
+flat_settings <- csf(sloop_smooth = TRUE, 
+                      class_threshold = 0.1, 
+                      cloth_resolution = 1, 
+                      rigidness = 3, 
+                      time_step = 0.65)
+classif_las1254 <- classify_ground(las1254, test_settings)
+dtm_tin_1250 <- rasterize_terrain(classif_las1250, res = 0.5, algorithm = tin())
+plot_dtm3d(dtm_tin_1250, bg = "white") 
+
+
+classif_las1254 <- classify_ground(clip_las1255, test_settings)
+dtm <- rasterize_terrain(classif_las1254, algorithm = tin(), pkg ="terra")
+dtm_prod <- terrain(dtm, v = c("slope", "aspect"), unit = "radians")
+dtm_hillshade <- shade(slope = dtm_prod$slope, aspect = dtm_prod$aspect)
+plot(dtm_hillshade, col =gray(0:30/30), legend = FALSE)
+plot_dtm3d(dtm, bg = "white") 
+plot(dtm)
 #MCC - MULTISCALE CURVATURE CLASSIFICATION
 #Source; Evans and Hudak 2016 https://ieeexplore.ieee.org/document/4137852
 #Principle; Iterates over points assessing minimum curvature, gradually approxima
 #ting surface area - pretty unintuitively
 #Runtime; 
 #Drawbacks; 
-?mcc
-las <- classify_ground(las, mcc(1.5,0.3))
+#?mcc
+#las <- classify_ground(las, mcc(1.5,0.3))
 
 ############################
 #####TRANSECT ASSESMENT#####
@@ -158,7 +178,7 @@ plot_crossection <- function(las,
 {
   colour_by <- rlang::enquo(colour_by)
   data_clip <- clip_transect(las, p1, p2, width)
-  p <- ggplot(data_clip@data, aes(X,Z)) + geom_point(size = 0.5) + coord_equal() + theme_minimal()
+  p <- ggplot(data_clip@data, aes(X,Z)) + geom_point(pch='.') + coord_equal() + theme_minimal()
   
   if (!is.null(colour_by))
     p <- p + aes(color = !!colour_by) + labs(color = "")
@@ -167,11 +187,13 @@ plot_crossection <- function(las,
 }
 # select area of inerest
 
-p1 <- c( min(las$X), 0 )
-p2 <- c( max(las$X), 0 )
+p1 <- c( min(classif_las1249$X), 0 )
+p2 <- c( max(classif_las1249$X), 0 )
 # create transcript showing classification
-plot_crossection(las, p1 = p1, p2 = p2, colour_by = factor(Classification))
-dev.off()
+plot_crossection(classif_las1249, p1 = p1, p2 = p2, colour_by = factor(Classification))
+#dev.off()
+plot(classif_las1249, color = "Classification")
+
 
 ############################
 ######2. DTM Creation#######
@@ -179,7 +201,7 @@ dev.off()
 
 #TIN - Triangular Irregular Network
 ?rasterize_terrain
-dtm_tin <- rasterize_terrain(las, res = 1, algorithm = tin())
+dtm_tin <- rasterize_terrain(classif_las1249, res = 0.5, algorithm = tin())
 plot_dtm3d(dtm_tin, bg = "white") 
 
 #IDW - Invert distance weighting
