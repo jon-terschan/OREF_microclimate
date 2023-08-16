@@ -87,7 +87,11 @@ plot(clip_las1249, color = "Z", bg = "grey", axis = TRUE, legend = TRUE)
 ########################
 
 #CLIP point clouds to radius
-clip_las1249 <- clip_circle(las1249, 0, 0, 20)
+clip_las1249 <- clip_rectangle(las1249, -20, -20, 20, 20)
+
+plot(clip_las1249, color = "Z", bg = "grey", axis = TRUE, legend = TRUE)
+clip_las12492 <- clip_circle(las1249, 0, 0, 20)
+plot(clip_las12492, color = "Z", bg = "grey", axis = TRUE, legend = TRUE)
 clip_las1250 <- clip_circle(las1250, 0, 0, 20) 
 clip_las1254 <- clip_circle(las1254, 0, 0, 20) 
 clip_las1255 <- clip_circle(las1255, 0, 0, 20) 
