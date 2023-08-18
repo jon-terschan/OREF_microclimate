@@ -30,9 +30,12 @@ clip_classif <- function(input, output) {
   las <- readLAS(input, select = "xyzrn")
   clip_las <- clip_rectangle(las, -buffer.size, -buffer.size, buffer.size, buffer.size)
   #clip_las <- clip_circle(las, 0, 0, buffer.size) # comment out whichever
+  message("Clipping complete. Classifying...")
   classif_las <- classify_ground(clip_las, csf.settings)
+  message("Ground classification complete. Exporting...")
   writeLAS(classif_las, 
               paste0(output.filepath, output,  "_", buffer.size, "m_class",  ".las"))
+  message("Export complete.")
 }
 
 walk2(input.filepaths, filenames, clip_classif)

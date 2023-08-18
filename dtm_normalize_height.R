@@ -21,9 +21,9 @@ dtm.res = 1
 #################### NORMALIZE LAS  ######ca. 30 mins#
 ######################################################
 normalizeLAS <- function(input, output, method) {
+  las <- readLAS(input, select = "xyzrnc")
+  dtm_tin <- rasterize_terrain(las, res = dtm.res, algorithm = tin())
   if(method == "hybrid") {
-    las <- readLAS(input, select = "xyzrnc")
-    dtm_tin <- rasterize_terrain(las, res = dtm.res, algorithm = tin())
     message("Normalization complete. Exporting...")
     nlas <- normalize_height(las, tin(), dtm = dtm_tin)
     writeLAS(nlas, 
@@ -31,8 +31,6 @@ normalizeLAS <- function(input, output, method) {
     message("Export complete.")
   }
   if(method == "dtm") {
-    las <- readLAS(input, select = "xyzrnc")
-    dtm_tin <- rasterize_terrain(las, res = dtm.res, algorithm = tin())
     nlas <- las - dtm_tin
     message("Normalization complete. Exporting...")
     writeLAS(nlas, 
@@ -40,8 +38,6 @@ normalizeLAS <- function(input, output, method) {
     message("Export complete.")
   }
   if(method == "tin") {
-    las <- readLAS(input, select = "xyzrnc")
-    dtm_tin <- rasterize_terrain(las, res = dtm.res, algorithm = tin())
     nlas <- normalize_height(las, tin())
     message("Normalization complete. Exporting...")
     writeLAS(nlas, 
@@ -50,8 +46,6 @@ normalizeLAS <- function(input, output, method) {
     message("Export complete.")
   }
   if(method == "knnidw") {
-    las <- readLAS(input, select = "xyzrnc")
-    dtm_tin <- rasterize_terrain(las, res = dtm.res, algorithm = tin())
     nlas <- normalize_height(las, knnidw())
     message("Normalization complete. Exporting...")
     writeLAS(nlas, 
@@ -69,4 +63,16 @@ normalizeLAS <- function(input, output, method) {
 # note that execution time ramps up if there is no DTM involved
 # hybrid and DTM take roughly 30 mins, the others should take
 # MUCH longer, like maybe half a day?
-walk2(input.filepaths, filenames, method = "tin", normalizeLAS)
+walk2(input.filepaths, filenames, method = "hybrid", normalizeLAS)
+
+######################################################
+### FUNCTION SETTING FOR SINGLE FILES ####ca 2 mins###
+######################################################
+# simply change input.filepaths to a single file path
+# and output to examiner folder
+
+# input.filepaths <- "D:/OREF_tls_microclimate_project/point_cloud_data/las_files/las_local_coord/clipped_classif/OREF_6_20m_class.las"
+# filenames <- path_file(input.filepaths)
+# filenames <- gsub('.{0,14}$', '', filenames)
+# output.filepath <- "D:/OREF_tls_microclimate_project/point_cloud_data/las_files/las_local_coord/normalized/Examiner/"
+# dtm.res = 1 

@@ -11,8 +11,8 @@ library(raster) # for loading raster files
 ######################################################
 file.name <- "OREF_1249_local"
 file.type <- ".las"
-file.path <- "D:/OREF_tls_microclimate_project/point_cloud_data/las_files/las_local_coord/"
-output.path <- "D:/OREF_tls_microclimate_project/DTM/Examiner"
+file.path <- "D:/OREF_tls_microclimate_project/point_cloud_data/las_files/las_local_coord/clipped_classif/"
+output.path <- "D:/OREF_tls_microclimate_project/DTM/Examiner/"
 dtm.res = 1 #target DTM resolution in m
 
 ######################################################
@@ -22,8 +22,6 @@ generate_dtm <- function(file.path,
                          file.name,
                          file.type,
                          output.path,
-                         buffer.size,
-                         csf.settings,
                          dtm.res)
   {
   las <- readLAS(paste0(file.path, file.name, file.type), select = "xyzrnc")
@@ -34,8 +32,7 @@ generate_dtm <- function(file.path,
 ######################################################
 ################ EXECUTE AND EXAMINE #################
 ######################################################
-generate_dtm(file.path, file.name, file.type, output.path, buffer.size, 
-             csf.settings, dtm.res)
+generate_dtm(file.path, file.name, file.type, output.path, dtm.res)
 
 # READ AND LOOK AT FUNCTION
 DTM <- raster(paste0(output.path, file.name, "_DTM_", dtm.res, "m", ".tif"))
