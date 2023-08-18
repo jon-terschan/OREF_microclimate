@@ -9,47 +9,57 @@ library(purrr)
 library(fs) # for dir_ls, i think superior to list files
 
 ######################################################
-################ FUNCTION SETTINGS ###################
+################FILEPATHS #####BATCH###################
 ######################################################
+# simply change input.filepaths to a single file path
+# and output to Examiner folder to generate single outputs
 input.filepaths <- dir_ls("D:/OREF_tls_microclimate_project/point_cloud_data/las_files/las_local_coord/clipped_classif", glob = '*.las')
 filenames <- path_file(input.filepaths)
 filenames <- gsub('.{0,14}$', '', filenames)
 output.filepath <- "D:/OREF_tls_microclimate_project/point_cloud_data/las_files/las_local_coord/normalized/"
-dtm.res = 1 
+
+######################################################
+################ FILEPATHS #####BATCH#################
+######################################################
+model.res = 1 #target DTM resolution in m
+dtm.algorithm <- tin() # must be the same as in dtm generation script
+tin.settings.hybrid <- tin() # normalization settings hybrid method
+tin.settings <- tin() # normalization settings tin method
+knnidw.settings <- knnidw() # normalization settings knnidw method
 
 ######################################################
 #################### NORMALIZE LAS  ######ca. 30 mins#
 ######################################################
-normalizeLAS <- function(input, output, method) {
+normalizeLAS <- function(input, filename, method) {
   las <- readLAS(input, select = "xyzrnc")
-  dtm_tin <- rasterize_terrain(las, res = dtm.res, algorithm = tin())
+  dtm_tin <- rasterize_terrain(las, res = dtm.res, algorithm = dtm.algorithm)
   if(method == "hybrid") {
     message("Normalization complete. Exporting...")
-    nlas <- normalize_height(las, tin(), dtm = dtm_tin)
+    nlas <- normalize_height(las, tin.settings.hybrid, dtm = dtm_tin)
     writeLAS(nlas, 
-           paste0(output.filepath, output,  "_normalized_", method, ".las"))
+           paste0(output.filepath, filename,  "_normalized_", method, ".las"))
     message("Export complete.")
   }
   if(method == "dtm") {
     nlas <- las - dtm_tin
     message("Normalization complete. Exporting...")
     writeLAS(nlas, 
-             paste0(output.filepath, output,  "_normalized_", method, ".las"))
+             paste0(output.filepath, filename,  "_normalized_", method, ".las"))
     message("Export complete.")
   }
   if(method == "tin") {
-    nlas <- normalize_height(las, tin())
+    nlas <- normalize_height(las, tin.settings)
     message("Normalization complete. Exporting...")
     writeLAS(nlas, 
-             paste0(output.filepath, output,  "_normalized_", method, ".las"))
+             paste0(output.filepath, filename,  "_normalized_", method, ".las"))
     print(paste0(" Bing Bong! ", output, " is done!"))
     message("Export complete.")
   }
   if(method == "knnidw") {
-    nlas <- normalize_height(las, knnidw())
+    nlas <- normalize_height(las, knnidw.settings)
     message("Normalization complete. Exporting...")
     writeLAS(nlas, 
-             paste0(output.filepath, output,  "_normalized_", method, ".las"))
+             paste0(output.filepath, filename,  "_normalized_", method, ".las"))
     message("Export complete.")
   }
 }
@@ -64,15 +74,3 @@ normalizeLAS <- function(input, output, method) {
 # hybrid and DTM take roughly 30 mins, the others should take
 # MUCH longer, like maybe half a day?
 walk2(input.filepaths, filenames, method = "hybrid", normalizeLAS)
-
-######################################################
-### FUNCTION SETTING FOR SINGLE FILES ####ca 2 mins###
-######################################################
-# simply change input.filepaths to a single file path
-# and output to examiner folder
-
-# input.filepaths <- "D:/OREF_tls_microclimate_project/point_cloud_data/las_files/las_local_coord/clipped_classif/OREF_6_20m_class.las"
-# filenames <- path_file(input.filepaths)
-# filenames <- gsub('.{0,14}$', '', filenames)
-# output.filepath <- "D:/OREF_tls_microclimate_project/point_cloud_data/las_files/las_local_coord/normalized/Examiner/"
-# dtm.res = 1 

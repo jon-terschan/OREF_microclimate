@@ -13,7 +13,7 @@ library(fs) # for dir_ls, i think superior to list files
 ################ FILEPATHS #####BATCH#################
 ######################################################
 # simply change input.filepaths to a single file path
-# and output to examiner folder to run for single file
+# and output to Examiner folder to run for single file
 input.filepaths <- dir_ls("D:/OREF_tls_microclimate_project/point_cloud_data/las_files/las_local_coord/clipped_classif/", glob = '*.las')
 filenames <- path_file(input.filepaths)
 filenames <- gsub('.{0,14}$', '', filenames)# remove file ending from file names
