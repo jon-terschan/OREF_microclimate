@@ -23,3 +23,11 @@ dsm.algorithm = pitfree()
 # modOutputs should be your desired outputs as string
 # note: removing outputs wont affect average runtime of ~2 mins per file
 walk2(input.filepaths, filenames, modOutputs = c("dtm, dsm, chm"), getModels)
+
+
+######################################################
+#################### PLOT OUTPUT MODELS ##############
+######################################################
+exportPlots(dir_ls(here::here("data","raster","DTM"), glob = '*.tif'))
+exportPlots(dir_ls(here::here("data","raster","DSM"), glob = '*.tif'))
+exportPlots(dir_ls(here::here("data","raster","CHM"), glob = '*.tif'))

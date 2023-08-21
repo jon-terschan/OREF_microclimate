@@ -170,3 +170,31 @@ getModels <- function(input, filename, modOutputs) {
 #   writeRaster(dtm_tin, outputs, overwrite = T)
 #   print(paste0(" Bing Bong! ", filenames[f], " is done!"))
 # }
+
+######################################################
+#################### exportPlots######################
+######################################################
+# Purpose: generate rudimentary plots of DTMs, DSMs,
+#          and CSMs for visual assessment as pngs
+# Settings: input
+exportPlots <- function(input){
+  names <- path_file(input)
+  names <- gsub('.{0,4}$', '', names)
+  for (i in seq_along(input)) {
+    # Read the TIF file as a raster
+    raster_data <- raster(input[i])
+    # Convert raster to a data frame
+    raster_df <- as.data.frame(raster_data, xy = TRUE)
+    # Create a plot using ggplot2
+    plot <- ggplot(raster_df, aes(x = x, y = y, fill = Z)) +
+      geom_raster() +
+      scale_fill_viridis_c(option = "D")  # You can choose a different color scale if you prefer
+      theme_classic() +
+      labs(title = path_file(input)[i])
+    # Save the plot as a PNG or other desired format
+    ggsave(filename = paste0(names[i], ".png"), plot = plot, width = 5, height = 5,
+           path = path_dir(input))
+    # Print a message indicating progress
+    cat(path_file(input)[i], "exported.\n")
+  }
+}
