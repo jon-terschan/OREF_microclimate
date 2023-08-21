@@ -7,7 +7,7 @@ library(terra) # for rasterization operations
 library(raster) # to EXPORT DTM
 library(dplyr) # for walk2
 library(purrr) # for walk2
-library(fs) # for walk2
+library(fs) # for directory management functions
 library(here) # for operating system agnostic working directory
 
 ######################################################
