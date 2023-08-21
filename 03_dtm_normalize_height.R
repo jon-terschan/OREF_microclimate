@@ -3,10 +3,10 @@
 ######################################################
 # simply change input.filepaths to a single file path
 # and output to Examiner folder to generate single outputs
-input.filepaths <- dir_ls("data/point_cloud_data/las_files/las_local_coord/clipped_classif", glob = '*.las')
+input.filepaths <- dir_ls(here::here("data","point_cloud_data","las_files","las_local_coord", "clipped_classif"), glob = '*.las')
 filenames <- path_file(input.filepaths)
 filenames <- gsub('.{0,14}$', '', filenames)
-output.filepath <- "data/point_cloud_data/las_files/las_local_coord/normalized/"
+output.filepath <- here::here("data","point_cloud_data","las_files","las_local_coord", "normalized")
 
 ######################################################
 ################ FUNCTION SETTINGS ###################

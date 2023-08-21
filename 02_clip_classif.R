@@ -1,10 +1,10 @@
 ######################################################
 ################ FUNCTION SETTINGS ###################
 ######################################################
-input.filepaths <- dir_ls("data/point_cloud_data/las_files/las_local_coord/", glob = '*.las')
+input.filepaths <- dir_ls(here::here("data","point_cloud_data","las_files","las_local_coord"), glob = '*.las')
 filenames <- path_file(input.filepaths)
 filenames <- gsub('.{0,10}$', '', filenames) # remove file ending from file names
-output.filepath <- "data/point_cloud_data/las_files/las_local_coord/clipped_classif/"
+output.filepath <- here::here("data","point_cloud_data","las_files","las_local_coord", "clipped_classif")
 
 ######################################################
 ################ FUNCTION SETTINGS #####BATCH#########

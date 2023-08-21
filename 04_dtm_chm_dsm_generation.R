@@ -3,13 +3,12 @@
 ######################################################
 # simply change input.filepaths to a single file path
 # and output to Examiner folder to run for single file
-input.filepaths <- dir_ls("data/point_cloud_data/las_files/las_local_coord/clipped_classif/", glob = '*.las')
+input.filepaths <- dir_ls(here::here("data","point_cloud_data","las_files","las_local_coord", "clipped_classif"), glob = '*.las')
 filenames <- path_file(input.filepaths)
 filenames <- gsub('.{0,14}$', '', filenames)# remove file ending from file names
-
-dtm.filepath <- "data/raster/DTM/"
-dsm.filepath <- "data/raster/DSM/"
-chm.filepath <- "data/raster/CHM/"
+dtm.filepath <- here::here("data","raster","DTM")
+dsm.filepath <- here::here("data","raster","DSM")
+chm.filepath <- here::here("data","raster","CHM")
 
 ######################################################
 ################ FUNCTION SETTINGS #####BATCH#########

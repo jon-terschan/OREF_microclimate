@@ -1,4 +1,64 @@
 ######################################################
+################### createFolders  ########ca. 0 mins#
+######################################################
+# Purpose: create folder structure inside of root
+#          (the R project) if not already present
+# Settings: NONE
+createFolders <- function() {
+  if (file.exists(here::here("data")) == FALSE ) {
+    dir.create(file.path(here::here("data")), showWarnings = FALSE)
+  } 
+  if (file.exists(here::here("data", "raster")) == FALSE ) {
+    dir.create(file.path(here::here("data", "raster")), showWarnings = FALSE)
+  } 
+  if (file.exists(here::here("data", "raster", "CHM")) == FALSE ) {
+    dir.create(file.path(here::here("data", "raster", "CHM")), showWarnings = FALSE)
+  } 
+  if (file.exists(here::here("data", "raster", "DSM")) == FALSE ) {
+    dir.create(file.path(here::here("data", "raster", "DSM")), showWarnings = FALSE)
+  } 
+  if (file.exists(here::here("data", "raster", "DTM")) == FALSE ) {
+    dir.create(file.path(here::here("data", "raster", "DTM")), showWarnings = FALSE)
+  }
+  if (file.exists(here::here("data", "raster", "Examiner")) == FALSE ) {
+    dir.create(file.path(here::here("data", "raster", "Examiner")), showWarnings = FALSE)
+  }
+  if (file.exists(here::here("data", "point_cloud_data")) == FALSE ) {
+    dir.create(file.path(here::here("data", "point_cloud_data")), showWarnings = FALSE)
+  }
+  if (file.exists(here::here("data", "point_cloud_data", "las_files")) == FALSE ) {
+    dir.create(file.path(here::here("data", "point_cloud_data", "las_files")), showWarnings = FALSE)
+  }
+  if (file.exists(here::here("data", "point_cloud_data", "las_files", "Examiner")) == FALSE ) {
+    dir.create(file.path(here::here("data", "point_cloud_data", "las_files", "Examiner")), showWarnings = FALSE)
+  }
+  if (file.exists(here::here("data", "point_cloud_data", "las_files",  "las_local_coord")) == FALSE ) {
+    dir.create(file.path(here::here("data", "point_cloud_data", "las_files", "las_local_coord")), showWarnings = FALSE)
+  }
+  if (file.exists(here::here("data", "point_cloud_data", "las_files", "las_local_coord", "clipped_classif")) == FALSE ) {
+    dir.create(file.path(here::here("data", "point_cloud_data", "las_files", "las_local_coord", "clipped_classif")), showWarnings = FALSE)
+  }
+  if (file.exists(here::here("data", "point_cloud_data", "las_files", "Examiner")) == FALSE ) {
+    dir.create(file.path(here::here("data", "point_cloud_data", "las_files", "Examiner")), showWarnings = FALSE)
+  }
+}
+
+######################################################
+################### checkFiles  ########ca. 0 mins#
+######################################################
+# Purpose: check if las files exist in the first input folder
+#          and pass a warning message if not.
+# Settings: path in which it checks and filename pattern.
+checkFiles <- function(path, pattern) {
+  if ((length(list.files(path = path,
+                         pattern = pattern)) > 0) == FALSE) 
+  {
+    stop(paste0("No valid files of format ", pattern, 
+                " found in input folder. Terminating script! Please make sure your point cloud files are in the correct folder before running the pipeline."))
+  }
+}
+
+######################################################
 ################### CLIP_CLASSIF  ########ca. 20 mins#
 ######################################################
 # Purpose: clips point cloud and classifies ground 
@@ -8,13 +68,13 @@
 clip_classif <- function(input, filename) {
   las <- readLAS(input, select = "xyzrn")
   clip_las <- clip_rectangle(las, -buffer.size, -buffer.size, buffer.size, buffer.size)
-  #clip_las <- clip_circle(las, 0, 0, buffer.size) # comment out whichever
+              #clip_circle(las, 0, 0, buffer.size) # comment out whichever
   message("Clipping complete. Classifying...")
   classif_las <- classify_ground(clip_las, csf.settings)
   message("Ground classification complete. Exporting...")
   writeLAS(classif_las,
-              paste0(output.filepath, filename,  "_", buffer.size, "m_class",  ".las"))
-  message("Export complete.")
+              paste0(output.filepath,"/", filename,  "_", buffer.size, "m_class",  ".las"))
+  message(paste0(filename," completed! Moving to next file..."))
 }
 
 ######################################################
@@ -33,26 +93,26 @@ normalizeLAS <- function(input, filename, method) {
     message("Normalization complete. Exporting...")
     nlas <- normalize_height(las, tin.settings.hybrid, dtm = dtm_tin)
     writeLAS(nlas,
-             paste0(output.filepath, filename,  "_normalized_", method, ".las"))
+             paste0(output.filepath, "/", filename,  "_normalized_", method, ".las"))
   }
   if(method == "dtm") {
     nlas <- las - dtm_tin
     message("Normalization complete. Exporting...")
     writeLAS(nlas,
-             paste0(output.filepath, filename,  "_normalized_", method, ".las"))
+             paste0(output.filepath,"/", filename,  "_normalized_", method, ".las"))
   }
   if(method == "tin") {
     nlas <- normalize_height(las, tin.settings)
     message("Normalization complete. Exporting...")
     writeLAS(nlas,
-             paste0(output.filepath, filename,  "_normalized_", method, ".las"))
+             paste0(output.filepath, "/", filename,  "_normalized_", method, ".las"))
     print(paste0(" Bing Bong! ", output, " is done!"))
   }
   if(method == "knnidw") {
     nlas <- normalize_height(las, knnidw.settings)
     message("Normalization complete. Exporting...")
     writeLAS(nlas,
-             paste0(output.filepath, filename,  "_normalized_", method, ".las"))
+             paste0(output.filepath, "/", filename,  "_normalized_", method, ".las"))
   }
   message(paste0(filename, " completed! Moving to next file..."))
 }
@@ -72,18 +132,18 @@ getModels <- function(input, filename, modOutputs) {
   dsm <- rasterize_canopy(las, res = model.res, dsm.algorithm)
   if(grepl("dtm", modOutputs, fixed=TRUE) == TRUE) {
     writeRaster(dtm,
-                paste0(dtm.filepath, filename,  "_DTM_", model.res,"m", ".tif"),
+                paste0(dtm.filepath, "/", filename,  "_DTM_", model.res,"m", ".tif"),
                 overwrite = T)
   }
   if(grepl("dsm", modOutputs, fixed=TRUE) == TRUE) {
     writeRaster(dsm,
-                paste0(dsm.filepath, filename,  "_DSM_", model.res,"m", ".tif"),
+                paste0(dsm.filepath, "/", filename,  "_DSM_", model.res,"m", ".tif"),
                 overwrite = T)
   }
   if(grepl("chm", modOutputs, fixed=TRUE) == TRUE) {
     chm <- dsm - dtm
     writeRaster(chm,
-                paste0(chm.filepath, filename,  "_CHM_", model.res,"m", ".tif"),
+                paste0(chm.filepath, "/", filename,  "_CHM_", model.res,"m", ".tif"),
                 overwrite = T)
   }
   message(paste0(filename, " completed! Moving to next file..."))
