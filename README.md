@@ -1,3 +1,4 @@
+# Folder Structure
 ```
 FILEPATH/OREF_microclimate
 ├── 00_source.R
@@ -26,7 +27,6 @@ FILEPATH/OREF_microclimate
 ├── OREF_microclimate.Rproj
 └── README.md
 ```
-
 # FAQ
 ## Why did you use ```here()``` instead of relative filepaths? 
 If you cloned this repo using Git and opened the R project, it will automatically be set as the working directory and relative filepaths should work just fine. However, ```here()``` from the [here](https://here.r-lib.org/) package is superior to relative filepaths, because it calls on your operating systems filepath logic to reference a filepath. This means filepaths referenced using here do not have to be changed to be readable by UNIX-based systems. Moreover, it is easier to find and exchange directories within the filepath because directories are function arguments instead of parts of a huuuuge string. 
