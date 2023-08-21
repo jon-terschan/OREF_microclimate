@@ -1,3 +1,32 @@
+```
+FILEPATH/OREF_microclimate
+├── 00_source.R
+├── 01_create_dirs.R
+├── 02_clip_classif.R
+├── 03_dtm_normalize_height.R
+├── 04_dtm_chm_dsm_generation.R
+├── data
+│      └── point_cloud_data
+│      │          └── las_files
+│      │                     ├── ...
+│      │                     ├── Examiner
+│      │                     └── las_local_coord
+│      │                               ├── ...las
+│      │                               ├── clipped_classif
+│      │                                            └── ...las
+│      │                               └── normalized
+│      │                                            └── ...las
+│      └── raster
+│         ├── CHM
+│         ├── DSM
+│         ├── DTM
+│         └── Examiner
+├── deprecated
+├── functions.R
+├── OREF_microclimate.Rproj
+└── README.md
+```
+
 # FAQ
 ## Why did you use ```here()``` instead of relative filepaths? 
 If you cloned this repo using Git and opened the R project, it will automatically be set as the working directory and relative filepaths should work just fine. However, ```here()``` from the [here](https://here.r-lib.org/) package is superior to relative filepaths, because it calls on your operating systems filepath logic to reference a filepath. This means filepaths referenced using here do not have to be changed to be readable by UNIX-based systems. Moreover, it is easier to find and exchange directories within the filepath because directories are function arguments instead of parts of a huuuuge string. 
