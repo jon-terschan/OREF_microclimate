@@ -1,7 +1,7 @@
 # Folder Structure
 ```
 FILEPATH/OREF_microclimate
-├── 00_source.R
+├── 00_source.R                            
 ├── 01_create_dirs.R
 ├── 02_clip_classif.R
 ├── 03_dtm_normalize_height.R
