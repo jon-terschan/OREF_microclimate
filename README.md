@@ -1,5 +1,5 @@
 # FAQ
-## WHY HERE() INSTEAD OF RELATIVE FILEPATHS?
+## Why did you use ```here()``` instead of relative filepaths? 
 here() is more robust than relative filepaths because it calls on the operating systems filepath logic to create a path string. This means filepaths don't have to be changed to work in UNIX based systems
 Moreover, its easier to find and exchange folders because they are function arguments instead of words within a huge string.
 
