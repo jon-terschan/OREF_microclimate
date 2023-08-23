@@ -13,10 +13,11 @@ library(terra) # for generating a hillshade layer
 #######IMPORT###########
 ########################
 # the basic way to import individual scans 
-address1249 <- "D:/OREF_tls_microclimate_project/point_cloud_data/las_files/las_local_coord/OREF_1249_local.las"
+address1249 <- "D:/OREF_tls_microclimate_project/OREF_microclimate/data/point_cloud_data/las_files/las_georef/OREF_1249_georef.las"
 address1250 <- "D:/OREF_tls_microclimate_project/point_cloud_data/las_files/las_local_coord/OREF_1250_local.las"
 address1254 <- "D:/OREF_tls_microclimate_project/point_cloud_data/las_files/las_local_coord/OREF_1254_local.las"
 address1255 <- "D:/OREF_tls_microclimate_project/point_cloud_data/las_files/las_local_coord/OREF_1255_local.las"
+
 
 # select parameters to load from the las file
 # xyz = xyz coordinates
@@ -25,7 +26,8 @@ address1255 <- "D:/OREF_tls_microclimate_project/point_cloud_data/las_files/las_
 # i = intensity 
 # more parameters; https://search.r-project.org/CRAN/refmans/lidR/html/readLAS.html
 # filter to reduce file size can also filter by height 
-las1249 <- readLAS(address1249, select = "xyzrn") # filter = "-keep_first"
+las1249 <- readLAS(address1249, select = "xyzrnit") # filter = "-keep_first"
+max(las1249@data$ReturnNumber)
 las1250 <- readLAS(address1250, select = "xyzrn")
 las1254 <- readLAS(address1254, select = "xyzrn")
 las1255 <- readLAS(address1255, select = "xyzrn")
