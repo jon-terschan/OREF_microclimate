@@ -10,7 +10,9 @@ library(purrr) # for walk2
 library(fs) # for directory management functions
 library(here) # for operating system agnostic working directory
 library(ggplot2) # for plotting models
-
+# library(remotes)
+# remotes::install_github("Molina-Valero/FORTLS", dependencies = TRUE)
+library(FORTLS) # for forest inventory purposes 
 ######################################################
 ################ SOURCE SCRIPTS ######################
 ######################################################
