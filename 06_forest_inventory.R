@@ -45,6 +45,5 @@ met.var.TLS <- metrics.variables(tree.tls = tree.tls,
 # tree.tls <- tree.tls[tree.tls$id == "1", ]
 # 
 # # Download example of TXT file corresponding to plot 1 from Rioja data set
-# 
 # download.file(url = "https://www.dropbox.com/s/w4fgcyezr2olj9m/Rioja_1.txt?dl=1",
 #               destfile = file.path(dir.data, "1.txt"), mode = "wb")
