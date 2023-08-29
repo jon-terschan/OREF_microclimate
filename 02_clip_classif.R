@@ -15,8 +15,12 @@ csf.settings <- csf(sloop_smooth = TRUE, #cloth simulation parameters,
                     rigidness = 1, 
                     time_step = 0.65)
 buffer.size = 20  #buffer size in m
+buffer.method = "rectangle" # "circle", based on origin
 
 ######################################################
 #################### EXECUTE FUNCTION ####ca. 30 mins#
 ######################################################
-walk2(input.filepaths, filenames, clip_classif)
+walk2(input.filepaths, filenames, 
+      buffer.size = buffer.size,
+      buffer.method = buffer.method,
+      clip_classif)

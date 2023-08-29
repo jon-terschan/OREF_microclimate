@@ -24,7 +24,6 @@ dsm.algorithm = pitfree()
 # note: removing outputs wont affect average runtime of ~2 mins per file
 walk2(input.filepaths, filenames, modOutputs = c("dtm, dsm, chm"), getModels)
 
-
 ######################################################
 #################### PLOT OUTPUT MODELS ##############
 ######################################################

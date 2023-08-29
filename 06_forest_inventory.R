@@ -7,7 +7,7 @@ las <- readLAS(paste0(dir_path, filename))
 ######################################################
 #################### FORTLS ##########################
 ######################################################
-##?FORTLS
+?FORTLS
 buffer.size = 9  #buffer size in m
 normal_path <- here::here("data","forest_inventory","normalized", "/")
 pcd <- normalize(las = filename, 
@@ -32,6 +32,7 @@ estimation.plot.size(tree.tls,
                      dbh.min = 4,
                      average = FALSE, all.plot.designs = FALSE)
 # forest inventory metrics calculation (around 400s)
+?metrics.variables
 met.var.TLS <- metrics.variables(tree.tls = tree.tls,
                                  tree.ds = ds,
                                  # plot.parameters = data.frame(radius = 10, 

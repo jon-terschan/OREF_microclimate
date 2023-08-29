@@ -65,16 +65,24 @@ checkFiles <- function(path, pattern) {
 #          returns, exports results as new las files
 # Settings: buffer.size, csf.settings, input filepaths,
 #           output filepaths, filenames
-clip_classif <- function(input, filename) {
+clip_classif <- function(input, filename, buffer.size, buffer.method) {
   las <- readLAS(input, select = "xyzrn")
-  clip_las <- clip_rectangle(las, -buffer.size, -buffer.size, buffer.size, buffer.size)
-              #clip_circle(las, 0, 0, buffer.size) # comment out whichever
-  message("Clipping complete. Classifying...")
+  if(missing(buffer.size)) stop("No buffer size specified!")
+  if(missing(buffer.method)) stop("No buffer method specified!")
+  if(buffer.method == "rectangle") {
+    clip_las <- clip_rectangle(las, -buffer.size, -buffer.size, buffer.size, buffer.size)
+    message("Clipping complete. Classifying...")
+  }
+  if(buffer.method == "circle") {
+    clip_las <- clip_circle(las, 0, 0, buffer.size)
+    message("Clipping complete. Classifying...")
+  }
   classif_las <- classify_ground(clip_las, csf.settings)
   message("Ground classification complete. Exporting...")
   writeLAS(classif_las,
               paste0(output.filepath,"/", filename,  "_", buffer.size, "m_class",  ".las"))
   message(paste0(filename," completed! Moving to next file..."))
+  gc()
 }
 
 ######################################################

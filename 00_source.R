@@ -14,7 +14,8 @@ library(ggplot2) # for plotting models
 # remotes::install_github("Molina-Valero/FORTLS", dependencies = TRUE)
 library(FORTLS) # for forest inventory  
 # remotes::install_github('tiagodc/TreeLS')
-library(TreeLS)
+library(TreeLS)# for forest inventory  
+library(VoxR) # for voxelization
 ######################################################
 ################ SOURCE SCRIPTS ######################
 ######################################################
