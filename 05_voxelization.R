@@ -1,19 +1,41 @@
 ################################################################################
 ###########################VOXR adapted from Flynn et al.#######################
 ################################################################################
-library(VoxR)
 input <- paste0(here::here("data","point_cloud_data","las_files","las_local_coord"), "/OREF_1255_local.las")
 las <- readLAS(input)
-
-# the age old problem of finding minimum euclidian distance
-# this should work but probably takes FOREVER due to exponential 
-# library(spatstat.geom)
-# points <- pp3(las@data$X, las@data$Y, las@data$Z,
-#               box3(c(-20, 20)))
-# nndi <- min(nndist(points))
+buffer.size = 6
+las <- clip_rectangle(las, -buffer.size, -buffer.size, buffer.size, buffer.size)
+# downsampling resolution
+res = 0.02
+# plot(las)
+# library(less)
+# findDistances <- function(las){
+#   lastab <- las@data[, 1:3]
+#   kdt <- KDTree$new(lastab)
+#   res <- kdt$query(lastab, k=3)
+#   nearestneighbor <- data.frame(mean = mean(res$nn.dists[res$nn.dists > 0]),
+#                                 med = median(res$nn.dists[res$nn.dists > 0]),
+#                                 max = max(res$nn.dists[res$nn.dists > 0]),
+#                                 min = min(res$nn.dists[res$nn.dists > 0]),
+#                                 q1 = quantile(res$nn.dists, probs = .01))
+#   return(nearestneighbor)
+# }
+# table <- findDistances(las)
+# 
+# lastab <- las@data[, 1:3]
+# kdt <- KDTree$new(lastab)
+# res <- kdt$query(lastab, k=3)
+# nearestneighbor <- data.frame(mean = mean(res$nn.dists[res$nn.dists > 0]),
+#                      med = median(res$nn.dists[res$nn.dists > 0]),
+#                      max = max(res$nn.dists[res$nn.dists > 0]),
+#                      min = min(res$nn.dists[res$nn.dists > 0]),
+#                      q1 = quantile(res$nn.dists, probs = .01))
+# mean(res$nn.dists[res$nn.dists > 0])
+# min(res$nn.dists[res$nn.dists > 0])
+# quantile(res$nn.dists, probs = c(.01, .05, .1, .25, .5, .75))
 
 ################################################################################
-vox = function(data,res,message){
+vox <- function(data,res,message){
   #- declare variables to pass CRAN check as suggested by data.table maintainers
   x=y=z=npts=.N=.=':='=NULL
   #- check for data consistency and convert to data.table
@@ -50,8 +72,6 @@ vox = function(data,res,message){
   return(data) #- output = coordinates + number of points associated with the coord
 }
 
-# downsampling resolution
-res = 0.05
 # input is a datatable with the coordinates i think
 data <- las@data[,c(1:3)]
 # convert into rounded coordinates + number of points within the voxel?
@@ -61,13 +81,12 @@ remove(data)
 # minimum height and maximum height per voxel
 z_seq <- seq(min(plot_vox$z), max(plot_vox$z), res)
 # raster extent from point cloud
-?raster
-ground <- raster(nrow = (40 / res),
-                   ncol = (40 / res),
-                   xmn = -20,
-                   xmx = 20,
-                   ymn = -20,
-                   ymx = 20)
+ground <- raster(nrow = ((2*buffer.size) / res),
+                   ncol = ((2*buffer.size) / res),
+                   xmn = -buffer.size,
+                   xmx = buffer.size,
+                   ymn = -buffer.size,
+                   ymx = buffer.size)
 # 0 value to raster
 values(ground) <- 0
 # raster to point
