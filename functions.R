@@ -206,3 +206,113 @@ exportPlots <- function(input){
     cat(path_file(input)[i], "exported.\n")
   }
 }
+######################################################
+##################SCRIPT 5: WHOLE STAND PAI ##########
+######################################################
+
+######################################################
+##################MODIFY PC ##########################
+######################################################
+# Purpose: Bundle of a couple operations preparing the
+#          point cloud for whole stand PAI estimation
+#          such as clipping, thinning, cutting below 
+#          a certain height, removing ground points from
+#          ground point classification etc.
+# Settings: input.cloud
+            # buffer.size = to reduce the cloud even further if desired
+            # keepGround = TRUE/FALSE, removes ground classified points from CSF
+            # cutoff = Z value threshold under which points will be removed
+            # thin.voxsize = voxel size for thinning, just samples 1 random point from voxel
+modifyPC <- function(input.cloud, buffer.size, keepGround, cutoff, thin.voxsize, calcDistances) {
+  if(extent(input.cloud)[c(2)] > buffer.size){
+    message("Point cloud extent seems to be larger than buffer size. Clipping.")
+    las <- clip_rectangle(input.cloud, -buffer.size, -buffer.size, buffer.size, buffer.size)
+  }
+  if(missing(buffer.size)){
+    message("No buffer specified. Proceeding with unaltered input point cloud extent.")
+    las <- clip_rectangle(input.cloud, -buffer.size, -buffer.size, buffer.size, buffer.size)
+  }
+  if(missing(thin.voxsize) == FALSE){
+    message("Thinning point cloud according to given voxel size. ")
+    las <- tlsSample(las, smp.voxelize(thin.voxsize)) 
+  }
+  if(keepGround == FALSE){
+    message("Removing ground points from earlier classification.")
+    las <-las[las@data$Classification == 1]
+  }
+  if(missing(cutoff) == FALSE){
+    message("Removing points below given Z value.")
+    las <-las[las@data$Z >= cutoff]
+  }
+}
+
+######################################################
+##################calcDistances ######################
+######################################################
+# Purpose: calculate distances for each point to its k nearest neighbors
+#          and summarizes the results into a summary data frame.
+#          gives out maximum, min, med and mean distances as well
+#          as 1%, 5% and 25% quantiles (EXCLUDING DISTANCES OF 0).
+#          column prop gives the percentage of points with distances > 0 
+#          to their k nearest neighbors of all considered distances. 
+# Settings: input (las cloud), k (numeric)
+calcDistances <- function(input, k) {
+  if(missing(k)){
+    message("Amount k of nearest neighbors unspecified, default to k = 3")
+    k = 3
+  }
+  lastab <- input@data[, 1:3]
+  kdt <- KDTree$new(lastab)
+  res <- kdt$query(lastab, k = k)
+  nearestneighbor <- data.frame(mean = mean(res$nn.dists[res$nn.dists > 0]),
+                                med = median(res$nn.dists[res$nn.dists > 0]),
+                                max = max(res$nn.dists[res$nn.dists > 0]),
+                                min = min(res$nn.dists[res$nn.dists > 0]),
+                                q1 = quantile(res$nn.dists[res$nn.dists > 0], probs = .01),
+                                q5 = quantile(res$nn.dists[res$nn.dists > 0], probs = .05),
+                                q25 = quantile(res$nn.dists[res$nn.dists > 0], probs = .25),
+                                prop = (length(res$nn.dists[res$nn.dists > 0]) / length(res$nn.dists)) * 100
+  )
+}
+
+######################################################
+#################### vox        ######################
+######################################################
+# Purpose: convert las to voxR data.table
+# Settings: input
+vox <- function(data, res, message){
+  #- declare variables to pass CRAN check as suggested by data.table maintainers
+  x=y=z=npts=.N=.=':='=NULL
+  #- check for data consistency and convert to data.table
+  check=VoxR::ck_conv_dat(data, message=message)
+  # throw error messages if wrong resolution was provided 
+  if(missing(res)){
+    stop("No voxel resolution (res) provided")
+  }
+  else{
+    #- res must be a vector
+    if(!is.vector(res)) stop("res must be a vector of length 1")
+    #- res must be numeric
+    if(!is.numeric(res)) stop("res must be numeric")
+    #- res must be numeric
+    if(res<=0) stop("res must be positive")
+    #- res must be of length 1
+    if(length(res)>1){
+      res=res[1]
+      warning("res contains more than 1 element. Only the first was used")
+    }
+  }
+  #- keep only the data part from the check list
+  data=check$data
+  #- round point coordinates with the user defined resolution
+  data[,':='(x = Rfast::Round( x / res ) * res,
+             y = Rfast::Round( y / res ) * res,
+             z = Rfast::Round( z / res ) * res)]
+  # add number of points at the rounded resolution (within the voxels?)
+  data = unique(data[,npts:=.N,by=.(x,y,z)])
+  # remove garbage for memory purposes
+  gc()
+  # if data was a dataframe, give it as a dataframe
+  if(check$dfr) data = as.data.frame(data)
+  return(data) #- output = coordinates + number of points associated with the coord
+}

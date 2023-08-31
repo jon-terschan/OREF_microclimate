@@ -1,45 +1,29 @@
 ################################################################################
 ###########################VOXR adapted from Flynn et al.#######################
 ################################################################################
-input <- paste0(here::here("data","point_cloud_data","las_files","las_local_coord"), "/OREF_1255_local.las")
+input <- paste0(here::here("data","point_cloud_data","las_files","las_local_coord", "normalized"), "/OREF_1255_normalized_hybrid.las")
 las <- readLAS(input)
-buffer.size = 6
-las <- clip_rectangle(las, -buffer.size, -buffer.size, buffer.size, buffer.size)
-# downsampling resolution
-res = 0.02
-# plot(las)
-# library(less)
-# findDistances <- function(las){
-#   lastab <- las@data[, 1:3]
-#   kdt <- KDTree$new(lastab)
-#   res <- kdt$query(lastab, k=3)
-#   nearestneighbor <- data.frame(mean = mean(res$nn.dists[res$nn.dists > 0]),
-#                                 med = median(res$nn.dists[res$nn.dists > 0]),
-#                                 max = max(res$nn.dists[res$nn.dists > 0]),
-#                                 min = min(res$nn.dists[res$nn.dists > 0]),
-#                                 q1 = quantile(res$nn.dists, probs = .01))
-#   return(nearestneighbor)
-# }
-# table <- findDistances(las)
-# 
-# lastab <- las@data[, 1:3]
-# kdt <- KDTree$new(lastab)
-# res <- kdt$query(lastab, k=3)
-# nearestneighbor <- data.frame(mean = mean(res$nn.dists[res$nn.dists > 0]),
-#                      med = median(res$nn.dists[res$nn.dists > 0]),
-#                      max = max(res$nn.dists[res$nn.dists > 0]),
-#                      min = min(res$nn.dists[res$nn.dists > 0]),
-#                      q1 = quantile(res$nn.dists, probs = .01))
-# mean(res$nn.dists[res$nn.dists > 0])
-# min(res$nn.dists[res$nn.dists > 0])
-# quantile(res$nn.dists, probs = c(.01, .05, .1, .25, .5, .75))
+# downsampling resolution and voxel size
+res = 0.04
+buffer.size = 7
+# modify the point cloud
+las <- modifyPC(las, #input point cloud
+                buffer.size = buffer.size, #applies buffer for further reduction
+                cutoff = 0.2, #removes Z values under this threshold
+                keepGround = FALSE, #removes all points classified as ground
+                thin.voxsize = 0.02)  #thins PC by sampling random point from vox of given size
+plot(las)
+
+# calculate distances of k nearest neighbors, see function docu for more
+las_distances <- calcDistances(las, k=5)
+
 
 ################################################################################
-vox <- function(data,res,message){
+vox <- function(data, res, message){
   #- declare variables to pass CRAN check as suggested by data.table maintainers
   x=y=z=npts=.N=.=':='=NULL
   #- check for data consistency and convert to data.table
-  check=VoxR::ck_conv_dat(data,message=message)
+  check=VoxR::ck_conv_dat(data, message=message)
   # throw error messages if wrong resolution was provided 
   if(missing(res)){
     stop("No voxel resolution (res) provided")
