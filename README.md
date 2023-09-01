@@ -6,6 +6,8 @@ FILEPATH/OREF_microclimate
 ├── 02_clip_classif.R
 ├── 03_dtm_normalize_height.R
 ├── 04_dtm_chm_dsm_generation.R
+├── 05_whole_stand_pai.R
+├── 06_forest_inventory.R
 ├── data
 │      └── point_cloud_data
 │      │          └── las_files
@@ -18,10 +20,17 @@ FILEPATH/OREF_microclimate
 │      │                               └── normalized
 │      │                                            └── ...las
 │      └── raster
-│         ├── CHM
-│         ├── DSM
-│         ├── DTM
-│         └── Examiner
+│      │       ├── CHM
+│      │       ├── DSM
+│      │       ├── DTM
+│      │       └── Examiner
+│      │
+│      │
+│      │
+│      └── output
+│              ├── forest_inventory
+│              ├── point_cloud_distances
+│              └── whole_stand_pai
 ├── deprecated
 ├── functions.R
 ├── OREF_microclimate.Rproj
