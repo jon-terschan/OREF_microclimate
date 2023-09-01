@@ -58,8 +58,8 @@ filenames <- gsub('.{0,10}$', '', filenames)
 ```
 Another source of trouble might be the buffer coordinates. The coordinate system we used is centered on a temperature logger in the center of the plots, which makes buffering super straightforward and simple to implement. The clip and classify tool also assumes your point clouds coordinate system origin is always so same - make sure it is.
 
-## I want to use a different buffer?
-For semantic reasons, I didn't find an easy way to move the buffer options into the scripts, so they remain in the function definitions for now. LidR has multiple buffer options, I used a square of 40 m side length, but you can use whatever by swapping out the code in the functions script. Check the LidR documentation for buffer options. 
+## I want to use a different buffer to clip?
+The clip function is written in a way that it accepts rectangular and spherical buffers passed to it by the ```buffer.method``` argument. If you want something else, you will have to go adjust the function logic accordingly, which should not be too hard to do. Check the LidR documentation for buffer options. Also the buffer's primary purpose at this point is to reduce point cloud size and later scripts such as ```whole_stand_pai.R``` offer to buffer again.
 
 ## What is the logic behind the coordinates given to the rectangle buffer?
 The rectangle buffer is drawn from a bottom left and a top right point. The coordinate origin depends on your coordinate system which makes a strong argument for setting a coordinate system origin in the center of your plot. Since our coordinate systems is centered on the temperature logger, negative coordinates or either in front or left of the sensor, positive coordinates are right or behind it. With a 40 m square buffer, my bottom left point was -20, -20 and the top right point 20, 20.
