@@ -17,6 +17,7 @@ library(FORTLS) # for forest inventory
 library(TreeLS)# for forest inventory  
 library(VoxR) # for voxelization
 library(less) # for KDTree nearest neighbor implementation
+
 ######################################################
 ################ SOURCE SCRIPTS ######################
 ######################################################
@@ -28,4 +29,6 @@ source( here::here("02_clip_classif.R") ) # 20 mins
 # YOU CAN SOURCE THESE TOGETHER, THEY WILL RUN IN PARALLEL
 source( here::here("03_dtm_normalize_height.R") ) # 40 mins
 source( here::here("04_dtm_chm_dsm_generation.R") ) # 30 mins
+
+source( here::here("05_whole_stand_pai.R") ) # TBD
 # SEE README.MD FOR FAQ
