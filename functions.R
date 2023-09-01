@@ -41,6 +41,15 @@ createFolders <- function() {
   if (file.exists(here::here("data", "point_cloud_data", "las_files", "Examiner")) == FALSE ) {
     dir.create(file.path(here::here("data", "point_cloud_data", "las_files", "Examiner")), showWarnings = FALSE)
   }
+  if (file.exists(here::here("data", "output", "whole_stand_pai")) == FALSE ) {
+    dir.create(file.path(here::here("data", "output", "whole_stand_pai")), showWarnings = FALSE)
+  }
+  if (file.exists(here::here("data", "output", "point_cloud_distances")) == FALSE ) {
+    dir.create(file.path(here::here("data", "output", "point_cloud_distances")), showWarnings = FALSE)
+  }
+  if (file.exists(here::here("data", "output", "forest_inventory")) == FALSE ) {
+    dir.create(file.path(here::here("data", "output", "forest_inventory")), showWarnings = FALSE)
+  }
 }
 
 ######################################################
