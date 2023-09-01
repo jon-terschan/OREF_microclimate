@@ -223,10 +223,22 @@ exportPlots <- function(input){
             # keepGround = TRUE/FALSE, removes ground classified points from CSF
             # cutoff = Z value threshold under which points will be removed
             # thin.voxsize = voxel size for thinning, just samples 1 random point from voxel
-modifyPC <- function(input.cloud, buffer.size, keepGround, cutoff, thin.voxsize, calcDistances) {
+modifyPC <- function(input.cloud, buffer.size, buffer.method, keepGround, cutoff, thin.voxsize, calcDistances) {
   if(extent(input.cloud)[c(2)] > buffer.size){
     message("Point cloud extent seems to be larger than buffer size. Clipping.")
-    las <- clip_rectangle(input.cloud, -buffer.size, -buffer.size, buffer.size, buffer.size)
+      if(missing(buffer.method)) {
+      warning("No buffer method specified. Default to buffer.method = rectangle.")
+        las <- clip_rectangle(input.cloud, -buffer.size, -buffer.size, buffer.size, buffer.size)
+      message("Rectangle clip complete.")
+      }
+      if(buffer.method == "rectangle") {
+        las <- clip_rectangle(input.cloud, -buffer.size, -buffer.size, buffer.size, buffer.size)
+      message("Rectangle clip complete.")
+      }
+      if(buffer.method == "circle") {
+        las <- clip_circle(input.cloud, 0, 0, buffer.size)
+      message("Circle clip complete.")
+      }
   }
   if(missing(buffer.size)){
     message("No buffer specified. Proceeding with unaltered input point cloud extent.")
@@ -255,6 +267,8 @@ modifyPC <- function(input.cloud, buffer.size, keepGround, cutoff, thin.voxsize,
 #          as 1%, 5% and 25% quantiles (EXCLUDING DISTANCES OF 0).
 #          column prop gives the percentage of points with distances > 0 
 #          to their k nearest neighbors of all considered distances. 
+#          increasing k and running on a larger point cloud will 
+#          create the runtime by a large margin
 # Settings: input (las cloud), k (numeric)
 calcDistances <- function(input, k) {
   if(missing(k)){
@@ -276,10 +290,10 @@ calcDistances <- function(input, k) {
 }
 
 ######################################################
-#################### vox        ######################
+#################### vox adapted from Flymm et al#####   
 ######################################################
-# Purpose: convert las to voxR data.table
-# Settings: input
+# Purpose: convert las file to voxR data.table 
+# Settings: data, res 
 vox <- function(data, res, message){
   #- declare variables to pass CRAN check as suggested by data.table maintainers
   x=y=z=npts=.N=.=':='=NULL
