@@ -36,6 +36,22 @@ FILEPATH/OREF_microclimate
 ├── OREF_microclimate.Rproj
 └── README.md
 ```
+# Scripts
+## 00_source
+Loads all required libraries/packages and runs the pipeline. All dependencies should be specified in the source script.   
+## functions
+Loads all custom functions used in the pipeline into the environment. Also serves as function documentation. 
+## 01_create_dirs
+Creates ```data/``` and its folder substructure. Also runs a function to validate that you stored your .las files into the right folder. If you cloned the pipeline using git, this script effectively completes the pipeline's folder structure (as ```data``` and its subdirectories contain large files and are thus listed in ```.gitignore```). 
+## 02_clip_classif
+Clips your point clouds using a rectangular and circular buffer centered around the coordinate system origin. Also classifies ground points using a CSF - Cloth Simulation Function (see LidR docu or various papers). Note that the CSF parameters must be adjusted to your point clouds to produce good results. Adapting the function to work with LidR's other ground classification options should be relatively straightforward if you so desire. Saves the clipped and classified point clouds in a different folder. 
+## 03_dtm_normalize_height
+Normalizes point cloud heights using either of three methods implemented in LidR. Saves the normalized point clouds in a different folder.
+## 04_dtm_chm_dsm_generation
+Generates digital terrain models, canopy height models and digital surface models of your point clouds as rasters and creates very basic overview figures to visually assess the results. The accuracy of the generated models mostly depends on the ground classification accuracy. We used Lidr's implementation of the pitfree algorithm to avoid pits in the output raster. Rasters are then exported into the correct folder. 
+## 05_whole_stand_pai
+## 06_forest_inventory
+
 # FAQ
 ## Why did you use ```here()``` instead of relative filepaths? 
 If you cloned this repo using Git and opened the R project, it will automatically be set as the working directory and relative filepaths should work just fine. However, ```here()``` from the [here](https://here.r-lib.org/) package is superior to relative filepaths, because it calls on your operating systems filepath logic to reference a filepath. This means filepaths referenced using here do not have to be changed to be readable by UNIX-based systems. Moreover, it is easier to find and exchange directories within the filepath because directories are function arguments instead of parts of a huuuuge string. 
