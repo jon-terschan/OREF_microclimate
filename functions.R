@@ -251,22 +251,26 @@ modifyPC <- function(input.cloud, buffer.size, buffer.method, keepGround, cutoff
   }
   if(missing(buffer.size)){
     message("No buffer specified. Proceeding with unaltered input point cloud extent.")
-    las <- clip_rectangle(input.cloud, -buffer.size, -buffer.size, buffer.size, buffer.size)
+  }
+  if(missing(keepGround) == FALSE){
+    if(keepGround == FALSE){
+      message("Removing ground points from earlier classification.")
+      las <-las[las@data$Classification == 1]
+    }
+    if(keepGround == TRUE){
+      message("Keeping ground points from earlier classification.")
+    }
   }
   if(missing(thin.voxsize) == FALSE){
     message("Thinning point cloud according to given voxel size. ")
     las <- tlsSample(las, smp.voxelize(thin.voxsize)) 
   }
-  if(keepGround == FALSE){
-    message("Removing ground points from earlier classification.")
-    las <-las[las@data$Classification == 1]
-  }
   if(missing(cutoff) == FALSE){
     message("Removing points below given Z value.")
     las <-las[las@data$Z >= cutoff]
   }
+  return(las)
 }
-
 ######################################################
 ##################calcDistances ######################
 ######################################################
