@@ -8,7 +8,7 @@ las <- readLAS(paste0(dir_path, filename))
 #################### FORTLS ##########################
 ######################################################
 ?FORTLS
-buffer.size = 9  #buffer size in m
+buffer.size = 7  #buffer size in m
 normal_path <- here::here("data","forest_inventory","normalized", "/")
 pcd <- normalize(las = filename, 
                  scan.approach = "multi", 
