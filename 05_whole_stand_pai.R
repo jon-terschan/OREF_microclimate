@@ -15,11 +15,11 @@ output.distances <- here::here("data","output","point_cloud_distances")
 ######################################################
 ################ FUNCTION SETTINGS #####BATCH#########
 ######################################################
-res = 0.1 # downsampling resolution and voxel size
-buffer.size = 10 # applies buffer for further reduction
+res = 0.1 # downsampling resolution and voxel size in point cloud unit (m)
+buffer.size = 10 # applies buffer for further reduction in point cloud unit (m)
 buffer.method = "rectangle" # OPTIONAL: rectangle or circle, defaults to rectangle
 correction.factor = 1.1 # apply correction factor to the PAI estimation, see Li et al 2017
-cutoff = 0.5 # OPTIONAL: removes Z values under this threshold, lowers runtime
+cutoff = 0.5 # OPTIONAL: removes Z height below this threshold, lowers runtime
 keepGround = FALSE # OPTIONAL: removes all points classified as ground, lowers runtime
 thin.voxsize = 0.02 # OPTIONAL: thins PC by sampling random point from vox of given size, lowers runtime
 calc.nn.k = 5 # OPTIONAL: K value to initiate k nearest neighbor search and create a dist file, 
