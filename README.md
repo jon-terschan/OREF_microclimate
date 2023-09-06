@@ -50,6 +50,9 @@ Normalizes point cloud heights using either of three methods implemented in LidR
 ## 04_dtm_chm_dsm_generation
 Generates digital terrain models, canopy height models and digital surface models of your point clouds as rasters and creates very basic overview figures to visually assess the results. The accuracy of the generated models mostly depends on the ground classification accuracy. We used Lidr's implementation of the pitfree algorithm to avoid pits in the output raster. Rasters are then exported into the correct folder. 
 ## 05_whole_stand_pai
+Estimates PAI for vertical slices of a given thickness following an approach laid out by [Flynn et al. 2023](https://bg.copernicus.org/articles/20/2769/2023/) and [Li et al. 2016](https://www.tandfonline.com/doi/abs/10.1080/07038992.2016.1220829?journalCode=ujrs20). Utilizes code from the Flynn et al. paper. For each slice, PAI is calculated as (Correction factor * (Number of voxels containing returns within the slice/Total number of voxals within the slice)). For this to work, voxels need to be quite small. The appropriate voxel size is to be determined by the user. A smaller voxel size increases stand level PAI estimates but reduces the amount of slices with PAI = 0 caused by occlusion effects and vice versa. 
+
+The estimatePAI function also wraps a function to modify the point cloud density and extent. The script returns .csv tables with the estimated PAI of each slice and a whole stand summary displaying the resolution of calculation, stand-level PAI, the Z height of the highest voxel (dominant height).   
 ## 06_forest_inventory
 
 # FAQ
