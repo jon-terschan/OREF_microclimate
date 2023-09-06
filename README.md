@@ -56,11 +56,20 @@ The custom ```estimatePAI()``` function also wraps a ```modifyPC()``` function w
 ## 06_forest_inventory
 
 # FAQ
+## Why did you iterate over .las files using ```walk2``` instead of using ```loops``` or a ```lascatalog``` ? 
+The way the pipeline is structured, all functions are collected in the functions script and each executable script contains only function options, input options and the walk2 command which iteratively executes the function for all files within the given directory. This has some advantages, e.g, that function settings can be easily adjusted before rerunning the pipeline and drawbacks, e.g, function definitions being "disembodied" from their settings which makes it more confusing to alter functions. 
+
+A ```lascatalog``` would enable us to conduct operations involving all .las files with less code, but from a purely functional perspective, I did not find huge differences between the two approaches. Under the hood, ```lascatalog``` also iterates through the .las files and its not necessarily faster. Its largest drawback is that the ```lascatalog``` engine is exclusive to LidR and other Lidar-focused packages calling on lastools, whereas the currently implemented approach to batch-processing is Lidar-agnostic and exactly the same for the whole pipeline. 
+
+I decided to limit the amount of loops within the pipeline for two reasons:
+1. Loops in R do not work 100% the same way they work in other popular programming languages and I did not want to introduce additional barriers.
+2. I find the assignment-based logic of looping hinders clarity when it comes to larger and more complex operations. I also find that the requirement to "think in a loop" can make it more difficult to troubleshoot loops than custom functions.
+
 ## Why did you use ```here()``` instead of relative filepaths? 
 If you cloned this repo using Git and opened the R project, it will automatically be set as the working directory and relative filepaths should work just fine. However, ```here()``` from the [here](https://here.r-lib.org/) package is superior to relative filepaths, because it calls on your operating systems filepath logic to reference a filepath. This means filepaths referenced using here do not have to be changed to be readable by UNIX-based systems. Moreover, it is easier to find and exchange directories within the filepath because directories are function arguments instead of parts of a huuuuge string. 
 
-## Where did your ominuous runtime estimates come from?
-I used the [microbenchmark](https://github.com/joshuaulrich/microbenchmark/) package to estimate the runtime of all scripts and functions at least once. I did not export the results, but they're probably system dependent as well. 
+## Where do the ominuous runtime estimates come from?
+I used the [microbenchmark](https://github.com/joshuaulrich/microbenchmark/) package to estimate the runtime of all scripts and functions at least once. I did not export the results since they likely depend on your system but I generally commented on arguments that influence the runtimes of certain functions to a substantial degree. 
 
 ## What are the Examiner folders?
 Examiner folders are output folders for singular outputs. The pipeline is written to process a bunch of files in batch, but if you want to examine the results of one specific function, you can change the output filepath to an Examiner folder.
