@@ -56,6 +56,10 @@ The custom ```estimatePAI()``` function also wraps a ```modifyPC()``` function w
 ## 06_forest_inventory
 
 # FAQ
+## What do I need to run this pipeline?
+One or multiple registered point cloud files stored in ```data/point_cloud_data/las_local_coord/```. Point cloud files should be stored in .las file format. It might also be possible to run the pipeline on .laz files, but I do not recommend it as this format takes a long time to load whenever LidR's ```readLAS``` function is called (which happens frequently throughout the pipeline). 
+Point clouds should also be in a local coordinate reference system where the origin is in the plots relative center, although this condition can be violated if the the buffer arguments within the custom functions are adjusted accordingly.
+
 ## Why did you iterate over .las files using ```walk2``` instead of using ```loops``` or a ```lascatalog``` ? 
 The way the pipeline is structured, all functions are collected in the functions script and each executable script contains only function options, input options and the walk2 command which iteratively executes the function for all files within the given directory. This has some advantages, e.g, that function settings can be easily adjusted before rerunning the pipeline and drawbacks, e.g, function definitions being "disembodied" from their settings which makes it more confusing to alter functions. 
 
