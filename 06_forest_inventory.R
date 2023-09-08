@@ -1,7 +1,8 @@
 dir_path <- here::here("data","point_cloud_data","las_files","las_local_coord", "normalized", "/")
-output_path <- here::here("data","forest_inventory","treedetec", "/")
-filename <- paste0(dir_path, "OREF_1255_normalized_hybrid.las")
+output_path <- here::here("data", "output", "forest_inventory","treedetec", "/")
+filename <- paste0(dir_path, "OREF_1245_normalized_hybrid.las")
 filename = path_file(filename)
+filenames <- gsub('.{0,22}$', '', filename)
 las <- readLAS(paste0(dir_path, filename))
 
 ######################################################
@@ -9,39 +10,42 @@ las <- readLAS(paste0(dir_path, filename))
 ######################################################
 ?FORTLS
 buffer.size = 7  #buffer size in m
-normal_path <- here::here("data","forest_inventory","normalized", "/")
+normal_path <- here::here("data","output", "forest_inventory","normalized", "/")
+?normalize
 pcd <- normalize(las = filename, 
                  scan.approach = "multi", 
                  normalized = TRUE,
                  dir.data = dir_path,
-                 # max.dist = 8,
-                 res.dtm = 1,
+                 max.dist = 7,
+                 res.dtm = 0.5,
                  save.result = TRUE,
+                 id = filenames,
                  dir.result = normal_path)
 ##tree detection, takes a long time
 tree.tls <- tree.detection.multi.scan(pcd[pcd$prob.selec == 1, ],
                                       dir.result = output_path)
+plot(las)
+?distance.sampling
 ds <- distance.sampling(tree.tls)
 # test <- tree.tls[,c(3:15)]
 # estimate of trees per unit 
 ?estimation.plot.size
 estimation.plot.size(tree.tls,
-                     plot.parameters = data.frame(radius.max = 25,
+                     plot.parameters = data.frame(radius.max = 7,
                                                   k.max = 50,
                                                   BAF.max = 4),
                      dbh.min = 4,
-                     average = FALSE, all.plot.designs = FALSE)
+                     average = T, all.plot.designs = FALSE)
 # forest inventory metrics calculation (around 400s)
 ?metrics.variables
 met.var.TLS <- metrics.variables(tree.tls = tree.tls,
                                  tree.ds = ds,
-                                 # plot.parameters = data.frame(radius = 10, 
-                                 #                              k = 2, 
-                                 #                              BAF = 4),
+                                 plot.design = "fixed.area",
+                                 plot.parameters = data.frame(radius = 7),
                                  scan.approach = "multi",
-                                 dir.data = here::here("data","forest_inventory","normalized", "/"), 
-                                 dir.result = here::here("data","forest_inventory","metrics", "/"))
-
+                                 dir.data = here::here("data","output","forest_inventory","normalized", "/"), 
+                                 dir.result = here::here("data","output","forest_inventory","metrics", "/"))
+plot(las)
 # data("Rioja.data")
 # tree.tls <- Rioja.data$tree.tls
 # tree.tls <- tree.tls[tree.tls$id == "1", ]
