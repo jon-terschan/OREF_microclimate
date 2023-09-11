@@ -16,7 +16,7 @@ pcd <- normalize(las = filename,
                  scan.approach = "multi", 
                  normalized = TRUE,
                  dir.data = dir_path,
-                 max.dist = 7,
+                 max.dist = 10,
                  res.dtm = 0.5,
                  save.result = TRUE,
                  id = filenames,
@@ -24,6 +24,7 @@ pcd <- normalize(las = filename,
 ##tree detection, takes a long time
 tree.tls <- tree.detection.multi.scan(pcd[pcd$prob.selec == 1, ],
                                       dir.result = output_path)
+
 plot(las)
 ?distance.sampling
 ds <- distance.sampling(tree.tls)
@@ -31,7 +32,7 @@ ds <- distance.sampling(tree.tls)
 # estimate of trees per unit 
 ?estimation.plot.size
 estimation.plot.size(tree.tls,
-                     plot.parameters = data.frame(radius.max = 7,
+                     plot.parameters = data.frame(radius.max = 15,
                                                   k.max = 50,
                                                   BAF.max = 4),
                      dbh.min = 4,
@@ -39,7 +40,7 @@ estimation.plot.size(tree.tls,
 # forest inventory metrics calculation (around 400s)
 ?metrics.variables
 met.var.TLS <- metrics.variables(tree.tls = tree.tls,
-                                 tree.ds = ds,
+                                 #tree.ds = ds,
                                  plot.design = "fixed.area",
                                  plot.parameters = data.frame(radius = 7),
                                  scan.approach = "multi",
