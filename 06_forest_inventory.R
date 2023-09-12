@@ -8,18 +8,27 @@ las <- readLAS(paste0(dir_path, filename))
 ######################################################
 #################### FORTLS ##########################
 ######################################################
-?FORTLS
+# FORTLS has a solid function documentation and I do recommend checking it out, the function
+# is just an implementation of the recommended workflow 
 buffer.size = 7  #buffer size in m
+las <- clip_rectangle(las, -buffer.size, -buffer.size, buffer.size, buffer.size)
+plot(las)
 normal_path <- here::here("data","output", "forest_inventory","normalized", "/")
 ?normalize
+buffer.size = 15
 pcd <- normalize(las = filename, 
                  scan.approach = "multi", 
                  normalized = TRUE,
+                 x.center = 0,
+                 y.center = 0,
+                 x.side = buffer.size,
+                 y.side = buffer.size,
+                 min.height = 0,
                  dir.data = dir_path,
-                 max.dist = 10,
-                 res.dtm = 0.5,
-                 save.result = TRUE,
+                 #max.dist = 10,
+                 res.dtm = 0.2,
                  id = filenames,
+                 # save.result = FALSE,
                  dir.result = normal_path)
 ##tree detection, takes a long time
 tree.tls <- tree.detection.multi.scan(pcd[pcd$prob.selec == 1, ],
@@ -32,7 +41,7 @@ ds <- distance.sampling(tree.tls)
 # estimate of trees per unit 
 ?estimation.plot.size
 estimation.plot.size(tree.tls,
-                     plot.parameters = data.frame(radius.max = 15,
+                     plot.parameters = data.frame(radius.max = 12,
                                                   k.max = 50,
                                                   BAF.max = 4),
                      dbh.min = 4,
