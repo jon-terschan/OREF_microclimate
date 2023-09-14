@@ -1,5 +1,5 @@
 ######################################################
-################ FUNCTION SETTINGS ###################
+################## IMPORT SETTINGS ###################
 ######################################################
 input.filepaths <- dir_ls(here::here("data","point_cloud_data","las_files","las_local_coord"), glob = '*.las')
 filenames <- path_file(input.filepaths)
