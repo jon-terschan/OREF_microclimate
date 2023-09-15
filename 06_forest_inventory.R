@@ -8,7 +8,18 @@ filename = path_file(filename)
 filenames <- gsub('.{0,22}$', '', filename)
 # optional: only necessary to save normalized txt files if desired
 # normal_path <- here::here("data","output", "forest_inventory","normalized", "/")
-
+las <- readLAS(paste0(dir_path, filename), select = "xyzrnc")
+buffer.size = 10
+clip_las <- clip_circle(las, 0, 0, buffer.size)
+writeLAS(clip_las,
+        paste0(dir_path, "test.las"))
+plot(clip_las)
+dir_path <- here::here("data","point_cloud_data","las_files","las_local_coord", "normalized", "/")
+output_path <- here::here("data", "output", "forest_inventory","treedetec", "/")
+filename <- paste0(dir_path, "test.las")
+filename = path_file(filename)
+filenames <- gsub('.{0,4}$', '', filename)
+normal_path <- here::here("data","output", "forest_inventory","normalized", "/")
 ######################################################
 ################ FUNCTION SETTINGS #####BATCH#########
 ######################################################
@@ -31,13 +42,14 @@ pcd <- normalize(las = filename,
                  normalized = TRUE,
                  x.center = 0,
                  y.center = 0,
-                 x.side = buffer.size,
-                 y.side = buffer.size,
+                 #x.side = buffer.size,
+                 #y.side = buffer.size,
                  min.height = 0,
                  dir.data = dir_path,
-                 max.dist = 7,
+                 max.dist = 10,
                  res.dtm = 0.5,
                  id = filenames,
+                 save.result = T,
                  dir.result = normal_path)
 ##tree detection, takes a long time
 tree.tls <- tree.detection.multi.scan(pcd[pcd$prob.selec == 1, ],
