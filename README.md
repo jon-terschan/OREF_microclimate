@@ -7,32 +7,36 @@ FILEPATH/OREF_microclimate
 ├── 03_dtm_normalize_height.R
 ├── 04_dtm_chm_dsm_generation.R
 ├── 05_whole_stand_pai.R
-├── 06_forest_inventory.R
+├── 06_dendrometrics_FORTLS
+├── functions.R
 ├── data
 │      └── point_cloud_data
 │      │          └── las_files
-│      │                     ├── ...
 │      │                     ├── Examiner
+│      │                    (├── las_georef)
 │      │                     └── las_local_coord
 │      │                               ├── ...las
 │      │                               ├── clipped_classif
 │      │                                            └── ...las
 │      │                               └── normalized
 │      │                                            └── ...las
-│      └── raster
-│      │       ├── CHM
+│      ├── raster
+│      │       ├── CHM 
 │      │       ├── DSM
 │      │       ├── DTM
 │      │       └── Examiner
 │      │
-│      │
+│      ├── temperature
 │      │
 │      └── output
 │              ├── forest_inventory
+│              │             ├──metrics
+│              │             ├──normalized
+│              │             └──treedetec
 │              ├── point_cloud_distances
 │              └── whole_stand_pai
 ├── deprecated
-├── functions.R
+│            └── ...
 ├── OREF_microclimate.Rproj
 └── README.md
 ```
@@ -53,8 +57,8 @@ Generates digital terrain models, canopy height models and digital surface model
 Estimates PAI for vertical slices of a given thickness following an approach laid out by [Flynn et al. 2023](https://bg.copernicus.org/articles/20/2769/2023/) and [Li et al. 2016](https://www.tandfonline.com/doi/abs/10.1080/07038992.2016.1220829?journalCode=ujrs20). Utilizes code from the Flynn et al. paper. For each slice, PAI is calculated as $`(C * (N_{i}÷N_{t}))`$, where $`C`$ is a correction factor (see referenced papers), $`N_{i}`$ is the number of voxels containing returns within a slice, and $`N_{t}`$ is the total number of voxals within the slice. For this to work, voxels need to be quite small. The appropriate voxel size is to be determined by the user. Larger voxels lead to larger stand-level PAI estimates due to the relatively large proportion of voxels that will be filled with returns. A large voxel size will also reduce the amount of slices with PAI = 0 (likely caused by occlusion effects) and reduce computational effort, while the opposite is true for smaller voxel sizes.
 
 The custom ```estimatePAI()``` function also wraps a ```modifyPC()``` function which can be used to modify the point cloud density and extent. I have not tested all possible combinations of settings that can be potentially passed to said function, and ```modifyPC()``` is likely to throw errors if certain function arguments are missing. As output, this script returns two .csv tables. One with the estimated PAI of each slice and one whole stand summary displaying the resolution of calculation, stand-level PAI, the Z height of the highest voxel (dominant height).   
-## 06_forest_inventory
-
+## 06_dendrometrics_FORTLS
+Detects trees from point cloud data and estimates dendrometrical measurements (forest inventory) from the detected trees using a fixed area plot design.
 # FAQ
 ## What do I need to run this pipeline?
 One or multiple registered point cloud files stored in ```data/point_cloud_data/las_local_coord/```. Point cloud files should be stored in .las file format. It might also be possible to run the pipeline on .laz files, but I do not recommend it as this format takes a long time to load whenever LidR's ```readLAS``` function is called (which happens frequently throughout the pipeline). 
