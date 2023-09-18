@@ -6,20 +6,19 @@ output_path <- here::here("data", "output", "forest_inventory","treedetec", "/")
 filename <- paste0(dir_path, "OREF_1245_normalized_hybrid.las")
 filename = path_file(filename)
 filenames <- gsub('.{0,22}$', '', filename)
-# optional: only necessary to save normalized txt files if desired
-# normal_path <- here::here("data","output", "forest_inventory","normalized", "/")
-las <- readLAS(paste0(dir_path, filename), select = "xyzrnc")
-buffer.size = 10
-clip_las <- clip_circle(las, 0, 0, buffer.size)
-writeLAS(clip_las,
-        paste0(dir_path, "test.las"))
-plot(clip_las)
-dir_path <- here::here("data","point_cloud_data","las_files","las_local_coord", "normalized", "/")
-output_path <- here::here("data", "output", "forest_inventory","treedetec", "/")
-filename <- paste0(dir_path, "test.las")
-filename = path_file(filename)
-filenames <- gsub('.{0,4}$', '', filename)
 normal_path <- here::here("data","output", "forest_inventory","normalized", "/")
+# las <- readLAS(paste0(dir_path, filename), select = "xyzrnc")
+# buffer.size = 10
+# clip_las <- clip_circle(las, 0, 0, buffer.size)
+# writeLAS(clip_las,
+#         paste0(dir_path, "test.las"))
+# plot(clip_las)
+# dir_path <- here::here("data","point_cloud_data","las_files","las_local_coord", "normalized", "/")
+# output_path <- here::here("data", "output", "forest_inventory","treedetec", "/")
+# filename <- paste0(dir_path, "test.las")
+# filename = path_file(filename)
+# filenames <- gsub('.{0,4}$', '', filename)
+# normal_path <- here::here("data","output", "forest_inventory","normalized", "/")
 ######################################################
 ################ FUNCTION SETTINGS #####BATCH#########
 ######################################################
@@ -28,14 +27,6 @@ buffer.size = 15
 ######################################################
 #################### FORTLS ##########################
 ######################################################
-# FORTLS has a solid function documentation and I do recommend checking it out, the function
-# is just an implementation of the recommended workflow 
-# ?FORTLS
-# ?estimation.plot.size
-# ?tree.detection.multi.scan
-# ?distance.sampling
-# ?metrics.variables
-
 ?normalize
 pcd <- normalize(las = filename, 
                  scan.approach = "multi", 
@@ -46,7 +37,7 @@ pcd <- normalize(las = filename,
                  #y.side = buffer.size,
                  min.height = 0,
                  dir.data = dir_path,
-                 max.dist = 10,
+                 max.dist = 7,
                  res.dtm = 0.5,
                  id = filenames,
                  save.result = T,
@@ -72,6 +63,3 @@ met.var.TLS <- metrics.variables(tree.tls = tree.tls,
                                  scan.approach = "multi",
                                  dir.data = here::here("data","output","forest_inventory","normalized", "/"), 
                                  dir.result = here::here("data","output","forest_inventory","metrics", "/"))
-######################################################
-#################### EXECUTE FUNCTION ####ca. 30 mins#
-######################################################

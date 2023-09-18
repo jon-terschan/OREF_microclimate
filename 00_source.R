@@ -1,4 +1,11 @@
 ######################################################
+#############EDYSAN TLS PROCESSING PIPELINE ##########
+######################################################
+# CHECK README.MD FOR FAQ AND OVERVIEW OVER THE PIPELINE
+# Scripts can be executed independently if dependencies and custom functions 
+# are loaded in.
+
+######################################################
 ################ DEPENDENCIES ########################
 ######################################################
 library(lidR) # to handle Lidar data
@@ -30,5 +37,6 @@ source( here::here("02_clip_classif.R") ) # 20 mins
 source( here::here("03_dtm_normalize_height.R") ) # 40 mins
 source( here::here("04_dtm_chm_dsm_generation.R") ) # 30 mins
 
+# HAVE NOT TESTED WHETHER THIS CAN RUN IN PARALLEL YES
 source( here::here("05_whole_stand_pai.R") ) # TBD
-# SEE README.MD FOR FAQ
+source( here::here("06_dendrometrics_FORTLS.R") ) # TBD
