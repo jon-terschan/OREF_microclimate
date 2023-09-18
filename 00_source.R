@@ -28,7 +28,7 @@ library(less) # for KDTree nearest neighbor implementation
 ######################################################
 ################ SOURCE SCRIPTS ######################
 ######################################################
-# SOURCE THESE ONE AT A TIME
+# SOURCE THESE SEQUENTIALLY
 source( here::here("functions.R") ) # 0 seconds
 source( here::here("01_create_dirs.R") ) # 0 seconds
 source( here::here("02_clip_classif.R") ) # 20 mins
