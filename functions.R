@@ -38,8 +38,14 @@ createFolders <- function() {
   if (file.exists(here::here("data", "point_cloud_data", "las_files", "las_local_coord", "clipped_classif")) == FALSE ) {
     dir.create(file.path(here::here("data", "point_cloud_data", "las_files", "las_local_coord", "clipped_classif")), showWarnings = FALSE)
   }
+  if (file.exists(here::here("data", "point_cloud_data", "las_files", "las_local_coord", "normalized")) == FALSE ) {
+    dir.create(file.path(here::here("data", "point_cloud_data", "las_files", "las_local_coord", "normalized")), showWarnings = FALSE)
+  }
   if (file.exists(here::here("data", "point_cloud_data", "las_files", "Examiner")) == FALSE ) {
     dir.create(file.path(here::here("data", "point_cloud_data", "las_files", "Examiner")), showWarnings = FALSE)
+  }
+  if (file.exists(here::here("data", "temperature")) == FALSE ) {
+    dir.create(file.path(here::here("data", "temperature")), showWarnings = FALSE)
   }
   if (file.exists(here::here("data", "output", "whole_stand_pai")) == FALSE ) {
     dir.create(file.path(here::here("data", "output", "whole_stand_pai")), showWarnings = FALSE)
@@ -49,6 +55,15 @@ createFolders <- function() {
   }
   if (file.exists(here::here("data", "output", "forest_inventory")) == FALSE ) {
     dir.create(file.path(here::here("data", "output", "forest_inventory")), showWarnings = FALSE)
+  }
+  if (file.exists(here::here("data", "output", "forest_inventory", "metrics")) == FALSE ) {
+    dir.create(file.path(here::here("data", "output", "forest_inventory", "metrics")), showWarnings = FALSE)
+  }
+  if (file.exists(here::here("data", "output", "forest_inventory", "normalized")) == FALSE ) {
+    dir.create(file.path(here::here("data", "output", "forest_inventory", "normalized")), showWarnings = FALSE)
+  }
+  if (file.exists(here::here("data", "output", "forest_inventory", "treedetec")) == FALSE ) {
+    dir.create(file.path(here::here("data", "output", "forest_inventory", "treedetec")), showWarnings = FALSE)
   }
 }
 
