@@ -42,13 +42,15 @@ FILEPATH/OREF_microclimate
 ```
 # Scripts
 ## 00_source
-Loads all required libraries/packages and runs the pipeline. All dependencies should be specified in the source script.   
+Loads all required libraries/packages and runs the pipeline. Dependencies must be specified in the source script. If you want to source only a single script (e.g, as a background job), I recommend commenting out all other source command and running the source script.  
 ## functions
-Loads all custom functions used in the pipeline into the environment. Also serves as function documentation. 
+Loads all custom functions we wrote for this pipeline into the environment. Also serves as function documentation. The overall logic between functions is quite similar; they wrap other functions into short workflows which can be run in batch. If you define additional custom functions or manipulate existing ones, do it in this script.
 ## 01_create_dirs
-Creates ```data/``` and its folder substructure. Also runs a function to validate that you stored your .las files into the right folder. If you cloned the pipeline using git, this script effectively completes the pipeline's folder structure (as ```data``` and its subdirectories contain large files and are thus listed in ```.gitignore```). 
+Creates ```data/``` and its folder substructure (see folder structure). Also runs a quick function to validate that you stored some .las files into the correct folder. If you cloned this pipeline with git, this script completes the pipeline's intended folder structure, because ```data``` and its subdirectories contain very large files (e.g. point cloud datas) and are thus listed in ```.gitignore```. 
 ## 02_clip_classif
-Clips your point clouds using a rectangular and circular buffer centered around the coordinate system origin. Also classifies ground points using a CSF - Cloth Simulation Function (see LidR docu or various papers). Note that the CSF parameters must be adjusted to your point clouds to produce good results. Adapting the function to work with LidR's other ground classification options should be relatively straightforward if you so desire. Saves the clipped and classified point clouds in a different folder. 
+Clips your point clouds using a rectangular or circular buffer centered around the point cloud's coordinate system origin. Also classifies ground points using a Cloth Simulation Function (CSF). The CSF turns the point cloud upside down and simulates a cloth being thrown over the inverted ground terrain. It then classifies or discards potential ground points based on a distance threshold. Further information on the CSF can be found in the [LidR package handbook](https://r-lidar.github.io/lidRbook/gnd.html#csf) and in [Zhang et al. 2016](https://www.mdpi.com/2072-4292/8/6/501/htm). Note that the CSF has parameters like hardness and cloth simulation which must be adjusted to your point cloud data to achieve good results. 
+
+Also classifies ground points using a CSF - Cloth Simulation Function (see LidR docu or various papers). Note that the CSF parameters must be adjusted to your point clouds to produce good results. Adapting the function to work with LidR's other ground classification options should be relatively straightforward if you so desire. Saves the clipped and classified point clouds in a different folder. 
 ## 03_dtm_normalize_height
 Normalizes point cloud heights using either of three methods implemented in LidR. Saves the normalized point clouds in a different folder.
 ## 04_dtm_chm_dsm_generation
