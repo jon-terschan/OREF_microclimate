@@ -37,10 +37,10 @@ d <- distribution %>%
   theme(legend.position = "bottom",
         legend.title = element_blank(),
         strip.text = element_text(size = 9, hjust = 0.5),
-        strip.background = element_rect(fill = "white", color = "white", size = 1) ) +
+        strip.background = element_rect(fill = "white", color = "white", linewidth = 1) ) +
   coord_flip()
 
-a <- oref_temperatures %>%
+s <- oref_temperatures %>%
   ggplot() +
   geom_line(
     aes(x = datetime, y = temperature, color = "HOBO Soil"),
@@ -57,9 +57,9 @@ a <- oref_temperatures %>%
   guides(alpha = F) +
   theme(legend.position = "bottom",
         strip.text = element_text(size = 9, hjust = 0.5),
-        strip.background = element_rect(fill = "white", colour = "white", size = 1))
+        strip.background = element_rect(fill = "white", colour = "white", linewidth = 1))
 
-s <- oref_temperatures %>%
+a <- oref_temperatures %>%
   ggplot() +
   # geom_line(aes(x=datetime, y=temperature, color ="HOBO Soil"),
   #           data = filter(oref_temperatures, position %in% "S")) +
