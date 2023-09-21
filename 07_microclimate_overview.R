@@ -3,6 +3,17 @@ library(plotly)
 
 Sys.setlocale("LC_ALL", "English")
 load(here::here("data", "temperature", "oref_temperatures_2019_2023.RData"))
+load(here::here("data", "temperature", "temperatures_WS2022.RData"))
+
+# temp_leafon <- oref_temperatures %>% ymd_hms(oref_temperatures$datetime >= "2022-04-01 00:00:00", 
+#                                              oref_temperatures$datetime <= "2022-10-31 23:00:00")
+# str(oref_temperatures)
+# oref_temperatures$datetime <- as.POSIXct(oref_temperatures$datetime, tz = "UTC")
+# class(oref_temperatures$datetime)
+
+# library(tibbletime)
+# oref_temperatures <- as_tbl_time(oref_temperatures, index = datetime)
+# filter_time(oref_temperatures, time_formula = '2022-04-01' ~ '2022-10-31')
 
 air_distribution <- oref_temperatures %>%
   filter(position == "A") %>%
@@ -76,7 +87,7 @@ a <- oref_temperatures %>%
   guides(alpha = F) +
   theme(legend.position = "bottom",
         strip.text = element_text(size = 9, hjust = 0.5),
-        strip.background = element_rect(fill = "white", color = "white", size = 1)
+        strip.background = element_rect(fill = "white", color = "white", linewidth = 1)
         )
 
 ggplotly(d)
@@ -91,3 +102,60 @@ oref_temperatures %>%
   guides(color = "none") +
   scale_color_viridis_d(option = "magma", end = 0.95) +
   theme_classic()
+
+
+######################################################
+################ SLOPE AND EQUILIBRIUM ################
+######################################################
+# CHECK DAYS COVERAGE OF INDIVIDUAL PLOTS
+air_distribution <- oref_temperatures %>%
+  filter(position == "A") %>%
+  filter(datetime >= as.POSIXct("2022-04-01 00:00:00 UTC", tz ="UTC"), 
+         datetime <= as.POSIXct("2022-10-31 23:00:00 UTC", tz ="UTC")) %>%
+  count(plot)   %>%
+  mutate(n_day = n / 24) %>%
+  mutate_at(3, round, 0) %>%
+  mutate(pos = "Air")
+
+# OREF FIELD AIR TEMPERATURES 
+leafon_air <- oref_temperatures %>% 
+  filter(position == "A") %>% # keep air temps
+  filter(datetime >= as.POSIXct("2022-04-01 00:00:00 UTC", tz ="UTC"), 
+         datetime <= as.POSIXct("2022-10-31 23:00:00 UTC", tz ="UTC")) %>% # between april and oct
+  filter(plot != "240") %>% # remove 240 bc it has no full coverage
+  droplevels() # drop unused levels
+
+# WEATHER STATION TEMPERATURES
+leafon_ws <- temperatures_WS2022 %>% 
+  filter(datetime >= as.POSIXct("2022-04-01 00:00:00 UTC", tz ="UTC"), 
+         datetime <= as.POSIXct("2022-10-31 23:00:00 UTC", tz ="UTC")) %>% # same timefrime
+  add_row(datetime = as.POSIXct("2022-08-29 12:00:00 UTC", tz ="UTC"),
+          T_WS = 21.07) # fill missing data entry
+# LEFT JOIN
+leafon_air_combined <- left_join(leafon_air, leafon_ws, by = join_by(datetime == datetime))
+# ID LIST AND RESULT LIST FOR FOR LOOP
+plots_id <- levels(leafon_air_combined$plot)
+coef_mod_on <- list()
+# FOR LOOP
+for (i in plots_id) {
+  temperatures_i <- na.omit(leafon_air_combined) %>% # omit NA and filter current plot
+    filter(plot==i)
+  
+  mod <- lm(temperature ~ T_WS, # linear model between field temp and T ws
+            data=temperatures_i, na.action = na.omit)
+  # Then the equilibrium per month AND slope (constant):
+  coef_mod_on[[i]] <-
+    data.frame(as.list(coef(mod))) %>%    # to get both coefficients
+    as_tibble() %>%
+    dplyr::rename(intercept = 1,
+                  slope = "T_WS") %>% 
+    mutate(equilibrium=intercept/(1-slope),
+           plot=as.factor(i),
+           r_squared=summary(mod)$r.squared)
+}
+coef_mod_on <- bind_rows(coef_mod_on) %>%
+  distinct()
+slopes_lidar <- coef_mod_on %>% 
+  select(plot, slope, equilibrium, r_squared) %>% 
+  arrange(plot)
+rm(i,temperatures_i, coef_mod_on)
