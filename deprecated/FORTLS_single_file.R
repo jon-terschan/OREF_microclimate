@@ -1,11 +1,29 @@
 ######################################################
 ################ FUNCTION SETTINGS ###################
 ######################################################
+library(lidR) # to handle Lidar data
+library(RCSF) # for CSF based ground classif
+library(terra) # for rasterization operations
+library(raster) # to EXPORT DTM
+library(dplyr) # for walk2
+library(purrr) # for walk2
+library(fs) # for directory management functions
+library(here) # for operating system agnostic working directory
+library(ggplot2) # for plotting models
+# library(remotes)
+# remotes::install_github("Molina-Valero/FORTLS", dependencies = TRUE)
+library(FORTLS) # for forest inventory  
+# remotes::install_github('tiagodc/TreeLS')
+library(TreeLS)# for forest inventory  
+library(VoxR) # for voxelization
+library(less) 
+
 dir_path <- here::here("data","point_cloud_data","las_files","las_local_coord", "normalized", "/")
 output_path <- here::here("data", "output", "forest_inventory","treedetec", "/")
 filename <- paste0(dir_path, "OREF_1245_normalized_hybrid.las")
 filename = path_file(filename)
 filenames <- gsub('.{0,22}$', '', filename)
+
 normal_path <- here::here("data","output", "forest_inventory","normalized", "/")
 # las <- readLAS(paste0(dir_path, filename), select = "xyzrnc")
 # buffer.size = 10
@@ -23,7 +41,7 @@ normal_path <- here::here("data","output", "forest_inventory","normalized", "/")
 ################ FUNCTION SETTINGS #####BATCH#########
 ######################################################
 buffer.size = 15
-
+memory.size(max = TRUE)
 ######################################################
 #################### FORTLS ##########################
 ######################################################
@@ -37,13 +55,15 @@ pcd <- normalize(las = filename,
                  #y.side = buffer.size,
                  min.height = 0,
                  dir.data = dir_path,
-                 max.dist = 7,
+                 max.dist = 10,
                  res.dtm = 0.5,
                  id = filenames,
                  save.result = T,
                  dir.result = normal_path)
+?tree.detection.multi.scan
 ##tree detection, takes a long time
 tree.tls <- tree.detection.multi.scan(pcd[pcd$prob.selec == 1, ],
+                                      breaks = 0.5,
                                       dir.result = output_path)
 ds <- distance.sampling(tree.tls)
 # test <- tree.tls[,c(3:15)]
