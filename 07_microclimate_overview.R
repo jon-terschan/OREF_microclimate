@@ -107,6 +107,9 @@ oref_temperatures %>%
 ######################################################
 ################ SLOPE AND EQUILIBRIUM ################
 ######################################################
+oref_test <- oref_temperatures %>%
+  droplevels()
+unique(leafon_air$plot)
 # CHECK DAYS COVERAGE OF INDIVIDUAL PLOTS
 air_distribution <- oref_temperatures %>%
   filter(position == "A") %>%
@@ -133,9 +136,11 @@ leafon_ws <- temperatures_WS2022 %>%
           T_WS = 21.07) # fill missing data entry
 # LEFT JOIN
 leafon_air_combined <- left_join(leafon_air, leafon_ws, by = join_by(datetime == datetime))
+
 # ID LIST AND RESULT LIST FOR FOR LOOP
 plots_id <- levels(leafon_air_combined$plot)
 coef_mod_on <- list()
+
 # FOR LOOP
 for (i in plots_id) {
   temperatures_i <- na.omit(leafon_air_combined) %>% # omit NA and filter current plot
@@ -153,9 +158,10 @@ for (i in plots_id) {
            plot=as.factor(i),
            r_squared=summary(mod)$r.squared)
 }
+
 coef_mod_on <- bind_rows(coef_mod_on) %>%
   distinct()
 slopes_lidar <- coef_mod_on %>% 
   select(plot, slope, equilibrium, r_squared) %>% 
-  arrange(plot)
-rm(i,temperatures_i, coef_mod_on)
+  arrange(plot) 
+rm(i,temperatures_i, coef_mod_on) # remove superfluous stuff from enviro
