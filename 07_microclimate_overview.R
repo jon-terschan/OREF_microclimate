@@ -1,6 +1,3 @@
-library(tidyverse) # load and manipulate data
-library(plotly)
-
 Sys.setlocale("LC_ALL", "English")
 load(here::here("data", "temperature", "oref_temperatures_2019_2023.RData"))
 load(here::here("data", "temperature", "temperatures_WS2022.RData"))
@@ -107,14 +104,11 @@ oref_temperatures %>%
 ######################################################
 ################ SLOPE AND EQUILIBRIUM ################
 ######################################################
-oref_test <- oref_temperatures %>%
-  droplevels()
-unique(leafon_air$plot)
 # CHECK DAYS COVERAGE OF INDIVIDUAL PLOTS
 air_distribution <- oref_temperatures %>%
   filter(position == "A") %>%
-  filter(datetime >= as.POSIXct("2022-04-01 00:00:00 UTC", tz ="UTC"), 
-         datetime <= as.POSIXct("2022-10-31 23:00:00 UTC", tz ="UTC")) %>%
+  filter(datetime >= as.POSIXct("2022-05-01 00:00:00 UTC", tz ="UTC"), 
+         datetime <= as.POSIXct("2022-09-30 23:00:00 UTC", tz ="UTC")) %>%
   count(plot)   %>%
   mutate(n_day = n / 24) %>%
   mutate_at(3, round, 0) %>%
@@ -123,15 +117,15 @@ air_distribution <- oref_temperatures %>%
 # OREF FIELD AIR TEMPERATURES 
 leafon_air <- oref_temperatures %>% 
   filter(position == "A") %>% # keep air temps
-  filter(datetime >= as.POSIXct("2022-04-01 00:00:00 UTC", tz ="UTC"), 
-         datetime <= as.POSIXct("2022-10-31 23:00:00 UTC", tz ="UTC")) %>% # between april and oct
+  filter(datetime >= as.POSIXct("2022-05-01 00:00:00 UTC", tz ="UTC"), 
+         datetime <= as.POSIXct("2022-09-30 23:00:00 UTC", tz ="UTC")) %>% # between april and oct
   filter(plot != "240") %>% # remove 240 bc it has no full coverage
   droplevels() # drop unused levels
 
 # WEATHER STATION TEMPERATURES
 leafon_ws <- temperatures_WS2022 %>% 
-  filter(datetime >= as.POSIXct("2022-04-01 00:00:00 UTC", tz ="UTC"), 
-         datetime <= as.POSIXct("2022-10-31 23:00:00 UTC", tz ="UTC")) %>% # same timefrime
+  filter(datetime >= as.POSIXct("2022-05-01 00:00:00 UTC", tz ="UTC"), 
+         datetime <= as.POSIXct("2022-09-30 23:00:00 UTC", tz ="UTC")) %>% # same timefrime
   add_row(datetime = as.POSIXct("2022-08-29 12:00:00 UTC", tz ="UTC"),
           T_WS = 21.07) # fill missing data entry
 # LEFT JOIN
@@ -165,3 +159,22 @@ slopes_lidar <- coef_mod_on %>%
   select(plot, slope, equilibrium, r_squared) %>% 
   arrange(plot) 
 rm(i,temperatures_i, coef_mod_on) # remove superfluous stuff from enviro
+
+
+g <- leafon_air_combined %>%
+  ggplot() +
+  geom_line(aes(x=datetime, y=T_WS, color ="Weather station")) +
+  geom_line(aes(x=datetime, y=temperature, color ="HOBO in the forest"), alpha=0.6) +
+  scale_color_manual(values=c("#4b8c79", "#9dc6e0"),
+                     name = "Measurements with:") +
+  xlab("") + ylab("Temperature (°C)") +
+  facet_wrap(vars(plot), ncol = 2) +
+  theme_classic() +
+  ggtitle("Temperatures: HOBOs vs. Weather stations") +
+  guides(alpha=F) +
+  theme(legend.position="bottom",
+        strip.text = element_text(size=9, hjust=0.5),
+        strip.background = element_rect(fill="white", colour="white",linewidth = 1))
+
+ggplotly(g)
+  
