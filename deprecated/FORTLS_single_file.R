@@ -1,23 +1,6 @@
 ######################################################
 ################ FUNCTION SETTINGS ###################
 ######################################################
-library(lidR) # to handle Lidar data
-library(RCSF) # for CSF based ground classif
-library(terra) # for rasterization operations
-library(raster) # to EXPORT DTM
-library(dplyr) # for walk2
-library(purrr) # for walk2
-library(fs) # for directory management functions
-library(here) # for operating system agnostic working directory
-library(ggplot2) # for plotting models
-# library(remotes)
-# remotes::install_github("Molina-Valero/FORTLS", dependencies = TRUE)
-library(FORTLS) # for forest inventory  
-# remotes::install_github('tiagodc/TreeLS')
-library(TreeLS)# for forest inventory  
-library(VoxR) # for voxelization
-library(less) 
-
 dir_path <- here::here("data","point_cloud_data","las_files","las_local_coord", "normalized", "/")
 output_path <- here::here("data", "output", "forest_inventory","treedetec", "/")
 filename <- paste0(dir_path, "OREF_1245_normalized_hybrid.las")
@@ -63,7 +46,6 @@ pcd <- normalize(las = filename,
 ?tree.detection.multi.scan
 ##tree detection, takes a long time
 tree.tls <- tree.detection.multi.scan(pcd[pcd$prob.selec == 1, ],
-                                      breaks = 0.5,
                                       dir.result = output_path)
 ds <- distance.sampling(tree.tls)
 # test <- tree.tls[,c(3:15)]
