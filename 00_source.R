@@ -18,12 +18,14 @@ library(fs) # for directory management functions
 library(here) # for operating system agnostic working directory
 library(ggplot2) # for plotting models
 # library(remotes)
-# remotes::install_github("Molina-Valero/FORTLS", dependencies = TRUE)
+# remotes::install_github("Molina-Valero/FORTLS", ref = "devel", dependencies = TRUE)
 library(FORTLS) # for forest inventory  
 # remotes::install_github('tiagodc/TreeLS')
 library(TreeLS)# for forest inventory  
 library(VoxR) # for voxelization
 library(less) # for KDTree nearest neighbor implementation
+library(tidyverse) # load and manipulate data
+library(plotly) # interactive plots
 
 ######################################################
 ################ SOURCE SCRIPTS ######################
