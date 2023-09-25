@@ -10,6 +10,7 @@ This pipeline was created as part of an ongoing microclimate investigation by th
 
 The pipeline is structured into scripts, each of which entails one or multiple different processing steps. Scripts can be sourced seperately or consecutively using the ```00_source.R``` script. Package dependencies are defined within ```00_source.R``` script. Ensure that ```functions.R``` was sourced beforehand before attempting to source individual scripts, since it contains all custom functions utilized in individual scripts. Scripts closely resemble each other: They usually contain variables defining (custom) function arguments (i.e., function settings and input paths), and code to execute the custom function for multiple files. If you want to change what a script does, you must do to so inside the corresponding custom function within the ```functions.R```script. Said script also entails some simple documentation on each custom function. 
 # Folder Structure
+Filepath references within the code assume the following directory structure:
 ```
 FILEPATH/OREF_microclimate
 ├── 00_source.R                            
@@ -51,6 +52,7 @@ FILEPATH/OREF_microclimate
 ├── OREF_microclimate.Rproj
 └── README.md
 ```
+You can ensure your working directory adhers to this structure by cloning (or downloading) this repository, opening the R project file (´´´OREF_microclimate.Rproj´´´) and sourcing the ´´´01_create_dirs.R´´´ script. Opening the project file first should ensure the project file's location is set as the working directory. See thee 
 # Scripts
 ## 00_source
 Loads all required libraries/packages and runs the pipeline. Dependencies must be specified in the source script. If you want to source only a single script (e.g, as a background job), I recommend commenting out all other source command and running the source script.  
