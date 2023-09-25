@@ -1,8 +1,8 @@
 ######################################################
 ################### createFolders  ########ca. 0 mins#
 ######################################################
-# Purpose: create folder structure inside of root
-#          (the R project) if not already present
+# Purpose: creates directory substructure inside of root
+#          (the R project) if it does not exist
 # Settings: NONE
 createFolders <- function() {
   if (file.exists(here::here("data")) == FALSE ) {
@@ -70,9 +70,10 @@ createFolders <- function() {
 ######################################################
 ################### checkFiles  ########ca. 0 mins#
 ######################################################
-# Purpose: check if las files exist in the first input folder
-#          and pass a warning message if not.
-# Settings: path in which it checks and filename pattern.
+# Purpose: checks if .as files exist in the very first input folder
+#          and aborts the pipeline with a warning message if not.
+# Settings: path: where to look for files (string)
+#           pattern: check only for files with this extension (string)
 checkFiles <- function(path, pattern) {
   if ((length(list.files(path = path,
                          pattern = pattern)) > 0) == FALSE) 
@@ -87,8 +88,11 @@ checkFiles <- function(path, pattern) {
 ######################################################
 # Purpose: clips point cloud and classifies ground 
 #          returns, exports results as new las files
-# Settings: buffer.size, csf.settings, input filepaths,
-#           output filepaths, filenames
+# Settings: buffer.size (numeric): buffer radius in point cloud distance units (m)
+#           csf.settings (function): setting for cloth simulation function
+#           input filepaths (list of strings): list of file paths for input files
+#           output filepaths (string): output directory 
+#           filenames (list of strings): list of all file names without extensions
 clip_classif <- function(input, filename, buffer.size, buffer.method) {
   las <- readLAS(input, select = "xyzrn")
   if(missing(buffer.size)) stop("No buffer size specified!")
