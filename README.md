@@ -124,3 +124,11 @@ My clipping function accepts rectangular and spherical buffers passed to it by t
 
 ## What is the logic behind the coordinates given to the rectangle buffer?
 The rectangle buffer is drawn from a bottom left and a top right point. The coordinate origin depends on your coordinate system. This is a strong argument for assigning point clouds a coordinate system that originates in the plot's relative center. Since our coordinate systems is centered on the temperature logger, negative coordinates or either in front or on the left side from the sensor, positive coordinates are on the right side or behind it. For instance, using a 40 m square buffer, my bottom left point was -20, -20 and the top right point 20, 20.
+
+# References
+- Flynn, W. R. M., Owen, H. J. F., Grieve, S. W. D., and Lines, E. R.: Quantifying vegetation indices using terrestrial laser scanning: methodological complexities and ecological insights from a Mediterranean forest, Biogeosciences, 20, 2769–2784, https://doi.org/10.5194/bg-20-2769-2023, 2023.
+- Juan Alberto Molina-Valero, Adela Martínez-Calvo, María José Ginzo Villamayor, Manuel Antonio Novo Pérez, Juan Gabriel Álvarez-González, Fernando Montes, César Pérez-Cruzado,
+Operationalizing the use of TLS in forest inventories: The R package FORTLS, Environmental Modelling & Software, Volume 150, 2022, 105337, ISSN 1364-8152, https://doi.org/10.1016/j.envsoft.2022.105337.
+- Roussel J, Auty D, Coops NC, Tompalski P, Goodbody TR, Meador AS, Bourdon J, de Boissieu F, Achim A (2020). “lidR: An R package for analysis of Airborne Laser Scanning (ALS) data.” Remote Sensing of Environment, 251, 112061. ISSN 0034-4257, doi:10.1016/j.rse.2020.112061.
+- Zhang W, Qi J, Wan P, Wang H, Xie D, Wang X, Yan G. An Easy-to-Use Airborne LiDAR Data Filtering Method Based on Cloth Simulation. Remote Sensing. 2016; 8(6):501. https://doi.org/10.3390/rs8060501
+
