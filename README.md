@@ -8,6 +8,7 @@ This pipeline was created as part of an ongoing microclimate investigation by th
 - Estimating whole stand PAI following the approach laid out in [Flynn et al. 2023](https://bg.copernicus.org/articles/20/2769/2023/).
 - Estimating stand-level dendrometrical measurements (basal area, DBH, stand volume, etc.) using [FORTLS](https://www.sciencedirect.com/science/article/pii/S1364815222000433).
 
+The pipeline is structured into scripts, each of which entails one or multiple different processing steps. Scripts can be sourced seperately or consecutively using the ```00_source.R``` script. Package dependencies are defined within ```00_source.R``` script. Ensure that ```functions.R``` was sourced beforehand before attempting to source individual scripts, since it contains all custom functions utilized in individual scripts. Scripts closely resemble each other: They usually contain variables defining (custom) function arguments (i.e., function settings and input paths), and code to execute the custom function for multiple files. If you want to change what a script does, you must do to so inside the corresponding custom function within the ```functions.R```script. Said script also entails some simple documentation on each custom function. 
 # Folder Structure
 ```
 FILEPATH/OREF_microclimate
