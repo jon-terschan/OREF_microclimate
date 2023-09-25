@@ -1,3 +1,13 @@
+# EDYSAN TLS PROCESSING PIPELINE FOR R
+This pipeline was created as part of an ongoing microclimate investigation by the EDYSAN lab for the purpose of batch-processing registering multi-scan point clouds stored in .LAS format. Thus, the pipeline can be split into steps that are generally applicable to TLS (pre-)processing (clipping, normalization,...) and those that are somewhat exclusive to said microclimate project. These processing steps are included: 
+- Creating a directory (sub)structure.
+- Clipping the point clouds using a circular or rectangular buffer.
+- Classifying ground points using a Cloth Simulation Function (CSF).
+- Creating Digital Terrain Models (DTM), Canopy Height Models (CHM), and Digital Surface Models (DSM) based on the point clouds.
+- Normalizing point cloud height based on the DTM, spatial interpolation, or a hybrid method.
+- Estimating whole stand PAI following the approach laid out in [Flynn et al. 2023](https://bg.copernicus.org/articles/20/2769/2023/).
+- Estimating stand-level dendrometrical measurements (basal area, DBH, stand volume, etc.) using [FORTLS](https://www.sciencedirect.com/science/article/pii/S1364815222000433).
+
 # Folder Structure
 ```
 FILEPATH/OREF_microclimate
