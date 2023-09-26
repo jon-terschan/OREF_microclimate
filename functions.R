@@ -1,10 +1,15 @@
 ######################################################
+##### SCRIPT 1: CREATE DIRECTORIES AND CHECK FILES ###
+######################################################
+
+######################################################
 ################### createFolders  ########ca. 0 mins#
 ######################################################
 # Purpose: creates directory substructure inside of root
 #          (the R project) if it does not exist
 # Settings: NONE
 createFolders <- function() {
+  # checks if directory exists and creates it if it does not exist
   if (file.exists(here::here("data")) == FALSE ) {
     dir.create(file.path(here::here("data")), showWarnings = FALSE)
   } 
@@ -72,8 +77,8 @@ createFolders <- function() {
 ######################################################
 # Purpose: checks if .as files exist in the very first input folder
 #          and aborts the pipeline with a warning message if not.
-# Settings: path: where to look for files (string)
-#           pattern: check only for files with this extension (string)
+# Settings: path (string): where to look for files 
+#           pattern (string): check only for files with this extension
 checkFiles <- function(path, pattern) {
   if ((length(list.files(path = path,
                          pattern = pattern)) > 0) == FALSE) 
@@ -82,6 +87,10 @@ checkFiles <- function(path, pattern) {
                 " found in input folder. Terminating script! Please make sure your point cloud files are in the correct folder before running the pipeline."))
   }
 }
+
+######################################################
+##### SCRIPT 2: CLIPPING/GROUND CLASSIFICATION #######
+######################################################
 
 ######################################################
 ################### CLIP_CLASSIF  ########ca. 20 mins#
@@ -114,13 +123,21 @@ clip_classif <- function(input, filename, buffer.size, buffer.method) {
 }
 
 ######################################################
+########### SCRIPT 3: HEIGHT NORMALIZATION ###########
+######################################################
+
+######################################################
 #################### NORMALIZE LAS  ######ca. 30 mins#
 ######################################################
 # Purpose: normalize point cloud height using one of 
 #          various methods descriped in the LidR docu.
 #          exports results as new las files
-# Settings: model.res, dtm.algorithm, tin.settings.hybrid,
-#           tin.settings, knnidw.settings, method,
+# Settings: model.res (numeric): DTM resolution in point cloud distance units (m) 
+#           dtm.algorithm (function): algorithm with which the DTM is estimated 
+#           method (string): normalization method, see LidR docu (tin, knnidw, hybrid)
+#           tin.settings.hybrid (function): algorithm settings for normalization hybrid method
+#           tin.settings (function): algorithm settings for normalization tin method
+#           knnidw.settings (function): algorithm settings for normalization knnidw method
 #           and the usual input/output paths
 normalizeLAS <- function(input, filename, method) {
   las <- readLAS(input, select = "xyzrnc")
@@ -154,14 +171,20 @@ normalizeLAS <- function(input, filename, method) {
 }
 
 ######################################################
+########## SCRIPT 4: DTM/DSM/CHM GENERATION ##########
+######################################################
+
+######################################################
 #################### getModels########################
 ######################################################
-# Purpose: generate DTMs, DSMs, and CSMs, the function
+# Purpose: generates DTMs, DSMs, and CSMs, the function
 #          generates DTM and DSM using tin and pitfall
 #          and CSM by subtracting DTM from DSM,
 #          results are exported as rasters
-# Settings: model.res, dtm.algorithm, dsm.algorithm,
-#          and the usual input/output paths
+# Settings: model.res (numeric): model resolution in point cloud distance units, should be same as in normalization
+#           dtm.algorithm (function): DTM generation algorithm, see lidR docu
+#           dsm.algorithm (function): DSM generation algorithm, see lidR docu
+#           and the usual input/output paths
 getModels <- function(input, filename, modOutputs) {
   las <- readLAS(input, select = "xyzrnc")
   dtm <- rasterize_terrain(las, res = model.res, algorithm = dtm.algorithm)
@@ -211,7 +234,7 @@ getModels <- function(input, filename, modOutputs) {
 #################### exportPlots######################
 ######################################################
 # Purpose: generate rudimentary plots of DTMs, DSMs,
-#          and CSMs for visual assessment as pngs
+#          and CSMs for visual assessment as .png files
 # Settings: input
 exportPlots <- function(input){
   names <- path_file(input)
@@ -241,16 +264,17 @@ exportPlots <- function(input){
 ######################################################
 ##################MODIFY PC ##########################
 ######################################################
-# Purpose: Bundle of a couple operations preparing the
+# Purpose: Wraps of a couple operations preparing the
 #          point cloud for whole stand PAI estimation
 #          such as clipping, thinning, cutting below 
 #          a certain height, removing ground points from
 #          ground point classification etc.
-# Settings: input.cloud
-            # buffer.size = to reduce the cloud even further if desired
-            # keepGround = TRUE/FALSE, removes ground classified points from CSF
-            # cutoff = Z value threshold under which points will be removed
-            # thin.voxsize = voxel size for thinning, just samples 1 random point from voxel
+# Settings: input.cloud (las file): las file to perform the operations on
+#           buffer.method (string): rectangle or circle, optional (defaults to rectangle)
+#           buffer.size (numeric): radius/sidelength of the buffer applied
+#           keepGround (boolean): TRUE/FALSE, remove ground classified points
+#           cutoff (numeric): Z value height threshold, points below will be removed
+#           thin.voxsize (numeric): voxel size for thinning, samples 1 random point from voxel
 modifyPC <- function(input.cloud, buffer.size, buffer.method, keepGround, cutoff, thin.voxsize, calcDistances) {
   if(extent(input.cloud)[c(2)] > buffer.size){
     message("Point cloud extent seems to be larger than buffer size. Clipping.")
@@ -293,15 +317,16 @@ modifyPC <- function(input.cloud, buffer.size, buffer.method, keepGround, cutoff
 ######################################################
 ##################calcDistances ######################
 ######################################################
-# Purpose: calculate distances for each point to its k nearest neighbors
+# Purpose: calculate distances for each point to k nearest neighbor points
 #          and summarizes the results into a summary data frame.
 #          gives out maximum, min, med and mean distances as well
-#          as 1%, 5% and 25% quantiles (EXCLUDING DISTANCES OF 0).
-#          column prop gives the percentage of points with distances > 0 
-#          to their k nearest neighbors of all considered distances. 
+#          as 1%, 5% and 25% quantiles ( DOES NOT CONSIDER DISTANCES OF 0).
+#          column prop in the resulting df gives the percentual proportion of points 
+#          with distances greater than 0.
 #          increasing k and running on a larger point cloud will 
 #          create the runtime by a large margin
-# Settings: input (las cloud), k (numeric)
+# Settings: input (las cloud): input point cloud
+#           k (numeric): amount of k neighbors to consider
 calcDistances <- function(input, k) {
   if(missing(k)){
     message("Amount k of nearest neighbors unspecified, default to k = 3")
@@ -325,7 +350,8 @@ calcDistances <- function(input, k) {
 #################### vox adapted from Flynn et al#####   
 ######################################################
 # Purpose: convert las file to voxR data.table 
-# Settings: data, res 
+# Settings: data (input point cloud),
+#           res (numeric): downsampling resolution (voxel size), see flynn paper 
 vox <- function(data, res, message){
   #- declare variables to pass CRAN check as suggested by data.table maintainers
   x=y=z=npts=.N=.=':='=NULL
@@ -370,13 +396,18 @@ vox <- function(data, res, message){
 #          notice that the function wraps the modifyPC function and you may 
 #          need to comment or uncomment certain parts of it if you want to 
 #          modify the point cloud
-# Settings: input, filename, res, buffer.size, correction.factor, calc.nn.k 
+# Settings: input: input point cloud  
+#           filename: name of input point cloud
+#           res: see vox function
+#           buffer.size: see modifyPC function
+#           correction.factor: a correction factor based on zenith angle, see referenced papers
+#           calc.nn.k: optional k value to calculate nearest neighbor distances (see calcDistance function)
 estimatePAI <- function(input, filename, res, buffer.size, correction.factor, calc.nn.k){
   # system time marker
   t1 = Sys.time()
   # read input point cloud
   las <- readLAS(input) 
-  # custom function to modify and reduce the point cloud, see function docu
+  # WRAPPER FOR A DIFFERENT CUSTOM FUNCTION, SEE MODIFYPC
   las <- modifyPC(las, #input point cloud
                   buffer.size = buffer.size, #applies buffer for further reduction
                   buffer.method = buffer.method,
@@ -385,6 +416,7 @@ estimatePAI <- function(input, filename, res, buffer.size, correction.factor, ca
                   #thin.voxsize = thin.voxsize  #thins PC by sampling random point from vox of given size
   ) 
   # Initiate k nearest neighbor search with nested function if optional argument is provided
+  # WRAPPER FOR A DIFFERENT CUSTOM FUNCTION, SEE CALCDISTANCES
   if (missing(calc.nn.k) == FALSE) {
     message("K value for nearest neighbor search provided. Calculating point cloud distances.")
     las_distances <- calcDistances(las, k = calc.nn.k)
@@ -471,7 +503,6 @@ estimatePAI <- function(input, filename, res, buffer.size, correction.factor, ca
   t2 = Sys.time()
   print(paste0(filename, " complete... time elapsed ", round(t2 - t1, 2)), quote = FALSE)
   # garbage collection and environ clearing
-  gc()
   remove(output)
   gc() 
 }
