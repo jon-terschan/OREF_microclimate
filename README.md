@@ -13,15 +13,15 @@ The pipeline is structured into scripts, each of which conducts one or multiple 
 Filepath references within the code assume the following directory structure:
 ```
 FILEPATH/OREF_microclimate
-├── 00_source.R                            
-├── 01_create_dirs.R
-├── 02_clip_classif.R
-├── 03_dtm_normalize_height.R
-├── 04_dtm_chm_dsm_generation.R
-├── 05_whole_stand_pai.R
-├── 06_dendrometrics_FORTLS
-├── functions.R
-├── data
+├── 00_source.R                                        # One script to load dependencies and source all other scripts                  
+├── 01_create_dirs.R                                   # A script to complete this directory structure
+├── 02_clip_classif.R                                  # A script to clip point clouds and classify ground points
+├── 03_dtm_normalize_height.R                          # A script to normalize point height 
+├── 04_dtm_chm_dsm_generation.R                        # A script to generate digital terrain/surface/canopy models
+├── 05_whole_stand_pai.R                               # A script to estimate whole-stand PAI
+├── 06_dendrometrics_FORTLS                            # A script to estimate dendrometrical measurements
+├── functions.R                                        # A script for custom function definitions
+├── data                                               # One sub-directory to store data inputs and outputs
 │      └── point_cloud_data
 │      │          └── las_files
 │      │                     ├── Examiner
@@ -47,10 +47,11 @@ FILEPATH/OREF_microclimate
 │              │             └──treedetec
 │              ├── point_cloud_distances
 │              └── whole_stand_pai
-├── deprecated
+├── deprecated                                        # A directory for all deprecated code
 │            └── ...
-├── OREF_microclimate.Rproj
-└── README.md
+├── OREF_microclimate.Rproj                           # An R project file
+(├── registration_report.pdf)                         # A .pdf report describing our pre-processing approach                  
+└── README.md                                         # This README file
 ```
 You can ensure your working directory adhers to this structure by cloning (or downloading) this repository, opening the R project file (```OREF_microclimate.Rproj```) and sourcing the ```01_create_dirs.R``` script. Opening the project file first should set the working directory at the project file's location. Check out the corresponding [FAQ section](https://github.com/jon-terschan/OREF_microclimate/blob/main/README.md#i-want-to-adapt-the-pipeline-to-use-for-my-own-files-what-do-i-have-to-look-after) to find out what else you might need to look out for when adapting the pipeline to your files.
 # Scripts
