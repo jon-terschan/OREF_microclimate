@@ -87,6 +87,9 @@ Different buffers may cause some differences because of the algorithms implement
 ## What data do I need to run this pipeline?
 You need one or multiple registered point cloud files located in ```data/point_cloud_data/las_local_coord/```. Point cloud files should be stored in ```.las``` file format. It might also be possible to run the pipeline on ```.laz``` files, but I do not recommend it as this format takes a long time to load whenever LidR's ```readLAS``` function is called (which happens frequently throughout the pipeline). We also did not test it for ```.laz``` files. Point clouds should be stored in a local coordinate reference system, i.e., the coordinate system origin should be in the plots relative center, although this condition may be violated if you adjust all buffer operations within the pipeline accordingly.
 
+This pipeline was written and tested for data captured with a TRIMBLE X7. Our point clouds underwent target-based registration in TRIMBLE FieldWorks. If you happen to use the same device or approach, [here is a copy of our pre-processing/registration report](https://github.com/jon-terschan/OREF_microclimate/blob/main/registration_report.pdf) which contains details on the registration process. 
+attached a copy of our pre-processing report to this repo. 
+
 ## Why did you iterate over files using ```walk2``` instead of using ```loops``` or a ```lascatalog``` ? 
 The way the pipeline is structured, all functions are collected in the functions script and each executable script contains only function options (arguments), input options (arguments) and the ```walk2``` function which iteratively executes the function for all files within a given directory. This has some tangible advantages, e.g, that function settings can be easily adjusted before rerunning the pipeline and drawbacks, e.g, function definitions being "disembodied" from their arguments which might make it more confusing to understand and modify functions. 
 
@@ -132,4 +135,3 @@ The rectangle buffer is drawn from a bottom left and a top right point. The coor
 Operationalizing the use of TLS in forest inventories: The R package FORTLS, Environmental Modelling & Software, Volume 150, 2022, 105337, ISSN 1364-8152, https://doi.org/10.1016/j.envsoft.2022.105337.
 - Roussel J, Auty D, Coops NC, Tompalski P, Goodbody TR, Meador AS, Bourdon J, de Boissieu F, Achim A (2020). “lidR: An R package for analysis of Airborne Laser Scanning (ALS) data.” Remote Sensing of Environment, 251, 112061. ISSN 0034-4257, doi:10.1016/j.rse.2020.112061.
 - Zhang W, Qi J, Wan P, Wang H, Xie D, Wang X, Yan G. An Easy-to-Use Airborne LiDAR Data Filtering Method Based on Cloth Simulation. Remote Sensing. 2016; 8(6):501. https://doi.org/10.3390/rs8060501
-
