@@ -133,9 +133,9 @@ My clipping function accepts rectangular and spherical buffers passed to it by t
 The rectangle buffer is drawn from a bottom left and a top right point. The coordinate origin depends on your coordinate system. This is a strong argument for assigning point clouds a coordinate system that originates in the plot's relative center. Since our coordinate systems is centered on the temperature logger, negative coordinates or either in front or on the left side from the sensor, positive coordinates are on the right side or behind it. For instance, using a 40 m square buffer, my bottom left point was -20, -20 and the top right point 20, 20.
 
 # References
-- Moore Flynn WR, Foord Owen HJ, Grieve SW, Lines ER. Quantifying vegetation indices using terrestrial laser scanning: methodological complexities and ecological insights from a Mediterranean forest. Biogeosciences. 2023 Jul;20(13):2769-84.
 - Gril E, Spicher F, Greiser C, Ashcroft MB, Pincebourde S, Durrieu S, Nicolas M, Richard B, Decocq G, Marrec R, Lenoir J. Slope and equilibrium: A parsimonious and flexible approach to model microclimate. Methods in Ecology and Evolution. 2023 Mar;14(3):885-97.
 - Molina-Valero JA, Martínez-Calvo A, Villamayor MJ, Pérez MA, Álvarez-González JG, Montes F, Pérez-Cruzado C. Operationalizing the use of TLS in forest inventories: The R package FORTLS. Environmental Modelling & Software. 2022 Apr 1;150:105337.
+- Moore Flynn WR, Foord Owen HJ, Grieve SW, Lines ER. Quantifying vegetation indices using terrestrial laser scanning: methodological complexities and ecological insights from a Mediterranean forest. Biogeosciences. 2023 Jul;20(13):2769-84.
 - Roussel JR, Auty D, Coops NC, Tompalski P, Goodbody TR, Meador AS, Bourdon JF, De Boissieu F, Achim A. lidR: An R package for analysis of Airborne Laser Scanning (ALS) data. Remote Sensing of Environment. 2020 Dec 15;251:112061.
 - Zhang W, Qi J, Wan P, Wang H, Xie D, Wang X, Yan G. An easy-to-use airborne LiDAR data filtering method based on cloth simulation. Remote sensing. 2016 Jun 15;8(6):501.
 
