@@ -20,6 +20,7 @@ FILEPATH/OREF_microclimate
 ├── 04_dtm_chm_dsm_generation.R                        # A script to generate digital terrain/surface/canopy models
 ├── 05_whole_stand_pai.R                               # A script to estimate whole-stand PAI
 ├── 06_dendrometrics_FORTLS                            # A script to estimate dendrometrical measurements
+├── 07_microclimate_overview                           # A script to visualize temperature time series and estimate slope/equilibrium
 ├── functions.R                                        # A script for custom function definitions
 ├── data                                               # One sub-directory to store data inputs and outputs
 │      └── point_cloud_data
@@ -83,6 +84,8 @@ The FORTLS authors also shared a lot of insights on buffer behavior and best pra
 Different buffers may cause some differences because of the algorithms implemented in FORTLS. Some of the reason behind that may be:
 - Possibility of undetected trees near to plot borders due to omission of parts of the trees out of borders. In this sense, I recommend you to employ a larger buffer (max.dist) than plot radius in order to improve tree detection near to plot borders. Then, metrics.variables function will only include those trees within the plot radius defined.
 - It is important to make sure plot center is being the same in all cases. For that purpose, you can use the arguments of the normalize function (e.g.  x.center = 0, y.center = 0). Otherwise, the plot's center will be defined as the mean point between the maximum and minimum X and Y coordinates within the cloud.
+## 07_microclimate_overview
+Visualizes microclimate temperature time series and calculates [slope and equilibrium follwing the approach laid out by Gril et al. 2023](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.14048) for dummy data. This script does not involve any TLS data.
 # FAQ
 ## What data do I need to run this pipeline?
 You need one or multiple registered point cloud files located in ```data/point_cloud_data/las_local_coord/```. Point cloud files should be stored in ```.las``` file format. It might also be possible to run the pipeline on ```.laz``` files, but I do not recommend it as this format takes a long time to load whenever LidR's ```readLAS``` function is called (which happens frequently throughout the pipeline). We also did not test it for ```.laz``` files. Point clouds should be stored in a local coordinate reference system, i.e., the coordinate system origin should be in the plots relative center, although this condition may be violated if you adjust all buffer operations within the pipeline accordingly.
@@ -131,7 +134,9 @@ The rectangle buffer is drawn from a bottom left and a top right point. The coor
 
 # References
 - Flynn, W. R. M., Owen, H. J. F., Grieve, S. W. D., and Lines, E. R.: Quantifying vegetation indices using terrestrial laser scanning: methodological complexities and ecological insights from a Mediterranean forest, Biogeosciences, 20, 2769–2784, https://doi.org/10.5194/bg-20-2769-2023, 2023.
+- Gril, E., Spicher, F., Greiser, C., Ashcroft, M. B., Pincebourde, S., Durrieu, S., ... & Lenoir, J. (2023). Slope and equilibrium: A parsimonious and flexible approach to model microclimate. Methods in Ecology and Evolution, 14(3), 885-897.
 - Juan Alberto Molina-Valero, Adela Martínez-Calvo, María José Ginzo Villamayor, Manuel Antonio Novo Pérez, Juan Gabriel Álvarez-González, Fernando Montes, César Pérez-Cruzado,
 Operationalizing the use of TLS in forest inventories: The R package FORTLS, Environmental Modelling & Software, Volume 150, 2022, 105337, ISSN 1364-8152, https://doi.org/10.1016/j.envsoft.2022.105337.
 - Roussel J, Auty D, Coops NC, Tompalski P, Goodbody TR, Meador AS, Bourdon J, de Boissieu F, Achim A (2020). “lidR: An R package for analysis of Airborne Laser Scanning (ALS) data.” Remote Sensing of Environment, 251, 112061. ISSN 0034-4257, doi:10.1016/j.rse.2020.112061.
 - Zhang W, Qi J, Wan P, Wang H, Xie D, Wang X, Yan G. An Easy-to-Use Airborne LiDAR Data Filtering Method Based on Cloth Simulation. Remote Sensing. 2016; 8(6):501. https://doi.org/10.3390/rs8060501
+
