@@ -1,5 +1,5 @@
 ######################################################
-################FILEPATHS #####BATCH###################
+################FILEPATHS #####BATCH##################
 ######################################################
 # simply change input.filepaths to a single file path
 # and output to Examiner folder to generate single outputs
